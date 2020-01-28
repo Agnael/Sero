@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Events\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Sero.Loxy" Version="1.0.2" />
+    <PackageReference Include="Sero.Mapper" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

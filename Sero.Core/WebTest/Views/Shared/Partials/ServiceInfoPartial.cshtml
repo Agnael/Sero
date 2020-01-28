@@ -1,0 +1,27 @@
+﻿@model WebTest.Models.ServiceInfoViewModel
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h3>@Model.Name</h3>
+
+            <table class="table table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" style="width: 20%">Property</th>
+                        <th scope="col">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var kvp in Model.Properties)
+                    {
+                        <tr>
+                            <td>@kvp.Key</td>
+                            <td>@kvp.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
