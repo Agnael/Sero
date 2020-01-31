@@ -15,17 +15,16 @@ namespace Sero.Doorman.Controller
 {
     [ApiController]
     //[Route("api/doorman/admin/[controller]")]
-    public class RolesController : ResourceController<Role>
+    public class RolesController : DoormanController<Role>
     {
         public readonly IRoleStore RoleStore;
         public readonly IResourceStore ResourceStore;
 
         public RolesController(
-            IRequestInfoService reqInfoService,
-            IActionDescriptorCollectionProvider adcp,
+            RequestUtils requestUtils,
             IRoleStore roleStore,
             IResourceStore resourceStore)
-            : base (reqInfoService, adcp)
+            : base (requestUtils)
         {
             this.RoleStore = roleStore;
             this.ResourceStore = resourceStore;
@@ -41,9 +40,10 @@ namespace Sero.Doorman.Controller
             if (!validationResult.IsValid)
                 return await this.ValidationErrorAsync();
 
+            int resourcesTotal = await RoleStore.CountAsync(filter);
             var resources = await RoleStore.FetchAsync(filter);
 
-            var view = await this.SuccessAsync(resources);
+            var view = await this.SuccessAsync(resources, resourcesTotal);
             return view;
         }
 

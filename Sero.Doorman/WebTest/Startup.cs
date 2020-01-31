@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using Serilog.Filters;
 using WebTest.Models;
 using WebTest.Services;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace WebTest
 {
@@ -80,12 +81,18 @@ namespace WebTest
             //services.AddScoped<IPermissionStore>(_ => new InMemoryPermissionStore(TestPermissionList));
             services.AddSingleton<IResourceStore>(_ => new InMemoryResourceStore(GetTestResources()));
             services.AddSingleton<IRoleStore>(_ => new InMemoryRoleStore(GetTestRoles()));
+            services.AddDoorman();
 
-            services.AddControllers(conf => conf.Filters.Add<DoormanAuthorizationFilter>());
+            services.AddControllers(conf => {
+                conf.Filters.Add<DoormanFilter>();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
         {
             if (env.IsDevelopment())
             {
@@ -101,6 +108,8 @@ namespace WebTest
             {
                 endpoints.MapControllers();
             });
+
+            Doorman.HealthCheck(actionDescriptorCollectionProvider);
         }
 
         public void ConfigureSerilog()
@@ -118,11 +127,61 @@ namespace WebTest
             return new List<Role>
             {
                 new Role(
-                    "dm_role_admin",
+                    "dm_role_admin01",
                     "Doorman administrator",
                     "Has access to any doorman endpoint. Can manage any security aspect of the application.",
                     new Permission("dm_res_resources", PermissionLevel.ReadWrite),
-                    new Permission("dm_res_roles", PermissionLevel.ReadWrite))
+                    new Permission("dm_res_roles", PermissionLevel.ReadWrite)),
+                new Role(
+                    "dm_role_admin02",
+                    "TEST02",
+                    "DESC02",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin03",
+                    "TEST03",
+                    "DESC03",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin04",
+                    "TEST04",
+                    "DESC04",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin05",
+                    "TEST05",
+                    "DESC05",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin06",
+                    "TEST06",
+                    "DESC06",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin07",
+                    "TEST07",
+                    "DESC07",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin08",
+                    "TEST08",
+                    "DESC08",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin09",
+                    "TEST09",
+                    "DESC09",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin10",
+                    "TEST10",
+                    "DESC10",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly)),
+                new Role(
+                    "dm_role_admin11",
+                    "TEST11",
+                    "DESC11",
+                    new Permission("dm_res_resources", PermissionLevel.ReadOnly))
             };
         }
 

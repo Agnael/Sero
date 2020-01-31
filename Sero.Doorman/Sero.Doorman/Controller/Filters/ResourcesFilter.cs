@@ -4,32 +4,19 @@ using System.Text;
 
 namespace Sero.Doorman.Controller
 {
-    public class ResourcesFilter
+    public class ResourcesFilter : CollectionFilter
     {
-        public string TextSearch { get; set; }
-
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-
-        public string SortBy { get; set; }
-        public string OrderBy { get; set; }
-
         public ResourcesFilter()
         {
-            this.TextSearch = null;
-            this.Page = 1;
-            this.PageSize = 10;
-            this.SortBy = nameof(Resource.Code);
-            this.OrderBy = Order.ASC;
         }
 
-        public ResourcesFilter(string textSearch, int page, int pageSize, string sortBy, string orderBy)
+        public ResourcesFilter(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy) : base(textSearch, page, pageSize, sortBy, orderBy)
         {
-            this.TextSearch = textSearch;
-            this.Page = page;
-            this.PageSize = pageSize;
-            this.SortBy = sortBy;
-            this.OrderBy = orderBy;
+        }
+
+        public override string GetDefaultSortingField()
+        {
+            return nameof(Resource.Code);
         }
     }
 }

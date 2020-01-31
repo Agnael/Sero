@@ -27,6 +27,35 @@ namespace Sero.Doorman.Stores
             Roles.Remove(foundRole);
         }
 
+        public async Task<int> CountAsync(RolesFilter filter)
+        {
+            IEnumerable<Role> query = Roles;
+            Func<Role, string> orderByPredicate = null;
+
+            // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
+            // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
+            if (filter.SortBy == nameof(Role.Code))
+                orderByPredicate = x => x.Code;
+            else if (filter.SortBy == nameof(Role.Description))
+                orderByPredicate = x => x.Description;
+            else if (filter.SortBy == nameof(Role.DisplayName))
+                orderByPredicate = x => x.DisplayName;
+
+            if (filter.OrderBy == Order.DESC)
+                query = query.OrderByDescending(orderByPredicate);
+            else
+                query = query.OrderBy(orderByPredicate);
+
+            if (!string.IsNullOrEmpty(filter.TextSearch))
+                query = query.Where(x => x.Code.ToLower().Contains(filter.TextSearch.ToLower())
+                                        || x.Description.ToLower().Contains(filter.TextSearch.ToLower())
+                                        || x.DisplayName.ToLower().Contains(filter.TextSearch.ToLower()));
+
+            var result = query.Count();
+
+            return result;
+        }
+
         public async Task<ICollection<Role>> FetchAsync(RolesFilter filter)
         {
             IEnumerable<Role> query = Roles;

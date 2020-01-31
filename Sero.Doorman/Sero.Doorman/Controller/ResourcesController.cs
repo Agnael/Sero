@@ -19,7 +19,8 @@ namespace Sero.Doorman.Controller
         }
         
         [HttpGet]
-        [RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
+        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
+        [DoormanAction("asd", Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Collection)]
         public async Task<IEnumerable<Resource>> GetByFilter([FromQuery] ResourcesFilter filter)
         {
             var validationResult = new ResourcesFilterValidator().Validate(filter);
@@ -32,8 +33,9 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet]
-        [RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
+        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
         [Route("{resourceCode}")]
+        [DoormanAction("asd42", Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
         public async Task<Resource> GetByCode(string resourceCode)
         {
             if (string.IsNullOrEmpty(resourceCode))
@@ -44,8 +46,9 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpPut]
-        [RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite)]
+        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite)]
         [Route("{resourceCode}")]
+        [DoormanAction("asd4", Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
         public async Task<IActionResult> Update([FromRoute] string resourceCode,
                                             [FromBody] ResourceUpdateForm form)
         {

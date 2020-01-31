@@ -9,6 +9,7 @@ namespace Sero.Doorman
     public interface IRoleStore
     {
         Task<ICollection<Role>> FetchAsync(RolesFilter filter);
+        Task<int> CountAsync(RolesFilter filter);
         Task<Role> FetchAsync(string roleCode);
         Task UpdateAsync(Role role);
         Task CreateAsync(Role role);

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sero.Doorman.ViewModels
+namespace Sero.Doorman
 {
     public class ResourceViewModel
     {

@@ -7367,11 +7367,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Proyectos\\Sero.Keeper\\Sero.Keeper.Ef\\Sero.Keeper.Ef.csproj",
+      "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper.Ef\\Sero.Keeper.Ef.csproj",
       "projectName": "Sero.Keeper.Ef",
-      "projectPath": "E:\\Proyectos\\Sero.Keeper\\Sero.Keeper.Ef\\Sero.Keeper.Ef.csproj",
+      "projectPath": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper.Ef\\Sero.Keeper.Ef.csproj",
       "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-      "outputPath": "E:\\Proyectos\\Sero.Keeper\\Sero.Keeper.Ef\\obj\\",
+      "outputPath": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper.Ef\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -7390,8 +7390,8 @@
       "frameworks": {
         "netstandard2.1": {
           "projectReferences": {
-            "E:\\Proyectos\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {
-              "projectPath": "E:\\Proyectos\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj"
+            "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {
+              "projectPath": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj"
             }
           }
         }

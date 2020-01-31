@@ -7791,11 +7791,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Proyectos\\Sero.Doorman\\WebTest\\WebTest.csproj",
+      "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
       "projectName": "WebTest",
-      "projectPath": "E:\\Proyectos\\Sero.Doorman\\WebTest\\WebTest.csproj",
+      "projectPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
       "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-      "outputPath": "E:\\Proyectos\\Sero.Doorman\\WebTest\\obj\\",
+      "outputPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -7814,8 +7814,8 @@
       "frameworks": {
         "netcoreapp3.0": {
           "projectReferences": {
-            "E:\\Proyectos\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
-              "projectPath": "E:\\Proyectos\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj"
+            "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
+              "projectPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj"
             }
           }
         }

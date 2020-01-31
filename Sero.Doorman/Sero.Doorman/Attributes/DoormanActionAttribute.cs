@@ -6,14 +6,12 @@ namespace Sero.Doorman
 {
     public class DoormanActionAttribute : Attribute
     {
-        public readonly string ActionCode;
         public readonly string ResourceCode;
         public readonly PermissionLevel LevelRequired;
         public readonly ActionScope ActionScope;
 
         public DoormanActionAttribute(string actionCode, string resourceCode, PermissionLevel levelRequired, ActionScope actionScope)
         {
-            this.ActionCode = actionCode;
             this.ResourceCode = resourceCode;
             this.LevelRequired = levelRequired;
             this.ActionScope = actionScope;

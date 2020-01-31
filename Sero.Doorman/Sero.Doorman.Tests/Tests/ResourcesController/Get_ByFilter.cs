@@ -21,7 +21,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         [InlineData("rce_code_04", 1, 20, nameof(Resource.Code), Order.ASC)]
         [InlineData("resource_code_", 1, 20, nameof(Resource.Code), Order.ASC)]
         [InlineData("Resource_code_", 1, 20, nameof(Resource.Code), Order.ASC)]
-        public async Task Success(string textSearch, int page, int pageSize, string sortBy, string orderBy)
+        public async Task Success(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy)
         {
             // Arrange
             var sortBySelector = ReflectionUtils.GeneratePropertySelector<Resource>(sortBy);
@@ -59,7 +59,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         [InlineData("gfdEdUDYzOHkhpFM7kGKTMkVX8", -1, -1, "carlitos", "carlitos")]    // code demasiado largo
         [InlineData("asd asd", -1, -1, "carlitos", "carlitos")]    // code con espacios
         [InlineData("asd}asd", -1, -1, "carlitos", "carlitos")]    // code con caracter inválido
-        public async Task InvalidFilter__Throws_ArgumentException(string textSearch, int page, int pageSize, string sortBy, string orderBy)
+        public async Task InvalidFilter__Throws_ArgumentException(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy)
         {
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
