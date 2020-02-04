@@ -10,7 +10,7 @@ namespace Sero.Doorman
         public readonly PermissionLevel LevelRequired;
         public readonly ActionScope ActionScope;
 
-        public DoormanActionAttribute(string actionCode, string resourceCode, PermissionLevel levelRequired, ActionScope actionScope)
+        public DoormanActionAttribute(string resourceCode, PermissionLevel levelRequired, ActionScope actionScope)
         {
             this.ResourceCode = resourceCode;
             this.LevelRequired = levelRequired;

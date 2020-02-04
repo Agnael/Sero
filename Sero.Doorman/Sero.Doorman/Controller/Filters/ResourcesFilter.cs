@@ -10,11 +10,20 @@ namespace Sero.Doorman.Controller
         {
         }
 
+        public ResourcesFilter(CollectionFilter filter) : base(filter)
+        {
+        }
+
         public ResourcesFilter(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy) : base(textSearch, page, pageSize, sortBy, orderBy)
         {
         }
 
-        public override string GetDefaultSortingField()
+        public override CollectionFilter Copy()
+        {
+            return new ResourcesFilter(this);
+        }
+
+        public override string GetDefaultSortByValue()
         {
             return nameof(Resource.Code);
         }

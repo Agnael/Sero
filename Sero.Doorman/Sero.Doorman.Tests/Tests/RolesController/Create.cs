@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Sero.Core.Mvc.ViewModels;
 using Sero.Doorman.Controller;
 using Sero.Doorman.Tests.Controllers.Roles;
 using System;

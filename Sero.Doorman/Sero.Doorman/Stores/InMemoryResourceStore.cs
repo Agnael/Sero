@@ -17,6 +17,32 @@ namespace Sero.Doorman.Stores
             Resources = resourceList;
         }
 
+        public async Task<int> CountAsync(ResourcesFilter filter)
+        {
+            IEnumerable<Resource> query = Resources;
+            Func<Resource, string> orderByPredicate = null;
+
+            // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
+            // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
+            if (filter.SortBy == nameof(Resource.Code))
+                orderByPredicate = x => x.Code;
+            else if (filter.SortBy == nameof(Resource.Category))
+                orderByPredicate = x => x.Category;
+
+            if (filter.OrderBy == Order.DESC)
+                query = query.OrderByDescending(orderByPredicate);
+            else
+                query = query.OrderBy(orderByPredicate);
+
+            if (!string.IsNullOrEmpty(filter.TextSearch))
+                query = query.Where(x => x.Code.ToLower().Contains(filter.TextSearch.ToLower())
+                                        || x.Category.ToLower().Contains(filter.TextSearch.ToLower()));
+
+            var result = query.Count();
+
+            return result;
+        }
+
         public async Task<ICollection<Resource>> FetchAsync(ResourcesFilter filter)
         {
             IEnumerable<Resource> query = Resources;

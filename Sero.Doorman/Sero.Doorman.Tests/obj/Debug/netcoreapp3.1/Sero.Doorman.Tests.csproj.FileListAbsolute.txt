@@ -256,3 +256,6 @@ E:\Proyectos\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorma
 E:\Proyectos\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.csproj.CopyComplete
 E:\Proyectos\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.dll
 E:\Proyectos\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.pdb
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.csprojAssemblyReference.cache
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.AssemblyInfoInputs.cache
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.AssemblyInfo.cs

@@ -8,61 +8,65 @@ using Sero.Doorman.Validators;
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    [Route("api/doorman/admin/[controller]")]
-    public class ResourcesController : ControllerBase
+    public class ResourcesController : DoormanController<Resource>
     {
         public readonly IResourceStore ResourceStore;
 
-        public ResourcesController(IResourceStore resourceStore)
+        public ResourcesController(
+            RequestUtils requestUtils,
+            IResourceStore resourceStore)
+            : base(requestUtils)
         {
             this.ResourceStore = resourceStore;
         }
-        
-        [HttpGet]
-        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
-        [DoormanAction("asd", Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Collection)]
-        public async Task<IEnumerable<Resource>> GetByFilter([FromQuery] ResourcesFilter filter)
+
+        [HttpGet("api/doorman/admin/resources")]
+        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Collection)]
+        public async Task<IActionResult> GetByFilter([FromQuery] ResourcesFilter filter)
         {
             var validationResult = new ResourcesFilterValidator().Validate(filter);
 
             if (!validationResult.IsValid)
                 throw new ArgumentException();
 
+            var resourcesTotal = await ResourceStore.CountAsync(filter);
             var resources = await ResourceStore.FetchAsync(filter);
-            return resources;
+
+            var view = await CollectionAsync(resources, resourcesTotal);
+            return view;
         }
 
-        [HttpGet]
-        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly)]
-        [Route("{resourceCode}")]
-        [DoormanAction("asd42", Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
-        public async Task<Resource> GetByCode(string resourceCode)
+        [HttpGet("api/doorman/admin/resources/{code}")]
+        [DoormanElementGetter]
+        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Element)]
+        public async Task<IActionResult> GetByCode(string code)
         {
-            if (string.IsNullOrEmpty(resourceCode))
-                throw new ArgumentNullException(nameof(resourceCode));
+            if (string.IsNullOrEmpty(code))
+                throw new ArgumentNullException(nameof(code));
 
-            var resource = await ResourceStore.FetchAsync(resourceCode);
-            return resource;
+            var resource = await ResourceStore.FetchAsync(code);
+
+            var view = await ElementAsync(resource);
+            return view;
         }
 
-        [HttpPut]
-        //[RequirePermission(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite)]
-        [Route("{resourceCode}")]
-        [DoormanAction("asd4", Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
-        public async Task<IActionResult> Update([FromRoute] string resourceCode,
-                                            [FromBody] ResourceUpdateForm form)
+        [HttpPut("api/doorman/admin/resources/{code}")]
+        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
+        public async Task<IActionResult> Edit(
+            [FromRoute] string code,
+            [FromBody] ResourceUpdateForm form)
         {
-            if (string.IsNullOrEmpty(resourceCode))
-                throw new ArgumentNullException(nameof(resourceCode));
+            if (string.IsNullOrEmpty(code))
+                throw new ArgumentNullException(nameof(code));
 
-            if (!await ResourceStore.IsExistingAsync(resourceCode))
+            if (!await ResourceStore.IsExistingAsync(code))
                 throw new ArgumentException("Unexisting resourceCode");
 
             var validationResult = new ResourceUpdateFormValidator().Validate(form);
             if (!validationResult.IsValid)
                 throw new ArgumentException("Invalid update form");
 
-            Resource resource = await ResourceStore.FetchAsync(resourceCode);
+            Resource resource = await ResourceStore.FetchAsync(code);
             resource.Category = form.Category;
             resource.Description = form.Description;
 

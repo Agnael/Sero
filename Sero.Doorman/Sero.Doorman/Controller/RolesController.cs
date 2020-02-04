@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    //[Route("api/doorman/admin/[controller]")]
     public class RolesController : DoormanController<Role>
     {
         public readonly IRoleStore RoleStore;
@@ -31,7 +30,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet("api/doorman/admin/roles")]
-        [DoormanAction("role_get_byfilter", Constants.ResourceCodes.Roles, PermissionLevel.ReadOnly, ActionScope.Collection)]
+        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadOnly, ActionScope.Collection)]
         public async Task<IActionResult> GetByFilter([FromQuery] RolesFilter filter)
         {
             var validationResult = new RolesFilterValidator().Validate(filter);
@@ -43,25 +42,31 @@ namespace Sero.Doorman.Controller
             int resourcesTotal = await RoleStore.CountAsync(filter);
             var resources = await RoleStore.FetchAsync(filter);
 
-            var view = await this.SuccessAsync(resources, resourcesTotal);
+            if (resources == null || resources.Count == 0)
+                return NotFound();
+
+            var view = await this.CollectionAsync(resources, resourcesTotal);
             return view;
         }
 
-        [HttpGet("api/doorman/admin/roles/{roleCode}")]
-        //[Route("{roleCode}")]
-        [DoormanAction("role_get_bycode", Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
-        public async Task<IActionResult> GetByCode(string roleCode)
+        [HttpGet("api/doorman/admin/roles/{code}")]
+        [DoormanElementGetter]
+        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
+        public async Task<IActionResult> GetByCode(string code)
         {
-            if (string.IsNullOrEmpty(roleCode)) throw new ArgumentNullException(nameof(roleCode));
+            if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
 
-            var role = await RoleStore.FetchAsync(roleCode);
+            var role = await RoleStore.FetchAsync(code);
 
-            var resultView = await this.SuccessAsync(role);
+            if (role == null)
+                return NotFound();
+
+            var resultView = await this.ElementAsync(role);
             return resultView;
         }
 
         [HttpPost("api/doorman/admin/roles")]
-        [DoormanAction("role_create", Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Collection)]
+        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Collection)]
         public async Task<IActionResult> Create(RoleCreateForm form)
         {
             var validationResult = new RoleCreateFormValidator(RoleStore, ResourceStore).Validate(form);
@@ -73,9 +78,34 @@ namespace Sero.Doorman.Controller
             Role role = new Role(form.Code, form.Name, form.Description, form.Permissions);
             await RoleStore.CreateAsync(role);
 
-            var view = await this.SuccessAsync(role);
+            var view = await this.ElementAsync(role);
             this.SetStatusCode(StatusCodes.Status201Created);
             return view;
+        }
+
+        [HttpPut("api/doorman/admin/roles/{code}")]
+        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
+        public async Task<IActionResult> Edit(
+            [FromQuery] string code,
+            [FromBody] RoleUpdateForm form)
+        {
+            if (string.IsNullOrEmpty(code))
+                throw new ArgumentNullException(nameof(code));
+
+            if (!await ResourceStore.IsExistingAsync(code))
+                throw new ArgumentException("Unexisting roleCode");
+
+            var validationResult = new RoleUpdateFormValidator(RoleStore, ResourceStore).Validate(form);
+            if (!validationResult.IsValid)
+                throw new ArgumentException("Invalid update form");
+
+            Role role = await RoleStore.FetchAsync(code);
+            role.DisplayName = form.DisplayName;
+            role.Description = form.Description;
+            role.Permissions = form.Permissions;
+
+            await RoleStore.UpdateAsync(role);
+            return StatusCode((int)HttpStatusCode.Accepted);
         }
     }
 }

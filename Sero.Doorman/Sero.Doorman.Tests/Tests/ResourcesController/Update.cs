@@ -24,7 +24,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
             // Act
             ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
 
-            IActionResult result = await _defaultSut.Update(resourceCode, form);
+            IActionResult result = await _defaultSut.Edit(resourceCode, form);
             Resource actual = await _defaultSut.GetByCode(resourceCode);
 
             // Assert
@@ -43,7 +43,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
             ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _defaultSut.Update(ResourceData.RESOURCE_01_CODE, form);
+                await _defaultSut.Edit(ResourceData.RESOURCE_01_CODE, form);
             });
         }
 
@@ -56,7 +56,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
             ResourceUpdateForm form = new ResourceUpdateForm("any", "any");
             await Assert.ThrowsAsync<ArgumentException>(async () =>
             {
-                await _defaultSut.Update(resourceCode, form);
+                await _defaultSut.Edit(resourceCode, form);
             });
         }
 
@@ -66,7 +66,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
             ResourceUpdateForm form = new ResourceUpdateForm("any", "any");
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _defaultSut.Update(null, form);
+                await _defaultSut.Edit(null, form);
             });
         }
     }
