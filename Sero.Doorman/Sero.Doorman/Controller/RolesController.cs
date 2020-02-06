@@ -54,7 +54,7 @@ namespace Sero.Doorman.Controller
         [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
         public async Task<IActionResult> GetByCode(string code)
         {
-            if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
+            //if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
 
             var role = await RoleStore.FetchAsync(code);
 
@@ -89,15 +89,17 @@ namespace Sero.Doorman.Controller
             [FromQuery] string code,
             [FromBody] RoleUpdateForm form)
         {
-            if (string.IsNullOrEmpty(code))
-                throw new ArgumentNullException(nameof(code));
+            //if (string.IsNullOrEmpty(code))
+            //    throw new ArgumentNullException(nameof(code));
 
             if (!await ResourceStore.IsExistingAsync(code))
-                throw new ArgumentException("Unexisting roleCode");
+                return NotFound();
 
             var validationResult = new RoleUpdateFormValidator(RoleStore, ResourceStore).Validate(form);
+            validationResult.AddToModelState(this.ModelState, null);
+
             if (!validationResult.IsValid)
-                throw new ArgumentException("Invalid update form");
+                return await this.ValidationErrorAsync();
 
             Role role = await RoleStore.FetchAsync(code);
             role.DisplayName = form.DisplayName;
@@ -105,7 +107,7 @@ namespace Sero.Doorman.Controller
             role.Permissions = form.Permissions;
 
             await RoleStore.UpdateAsync(role);
-            return StatusCode((int)HttpStatusCode.Accepted);
+            return StatusCode(StatusCodes.Status202Accepted);
         }
     }
 }

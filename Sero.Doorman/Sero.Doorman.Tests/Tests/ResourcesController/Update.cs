@@ -10,28 +10,29 @@ namespace Sero.Doorman.Tests.Controllers.Resources
 {
     public class Update : ResourcesControllerFixture
     {
-        [Theory]
-        [InlineData(ResourceData.RESOURCE_01_CODE, "newkat1", null)]
-        [InlineData(ResourceData.RESOURCE_04_CODE, null, "newDesk2")]
-        [InlineData(ResourceData.RESOURCE_05_CODE, "newkat3", "newdesk3")]
-        public async Task Success(string resourceCode, string newCategory, string newDescription)
-        {
-            // Arrange
-            Resource expected = _resourceStoreBuilder.ResourceList.FirstOrDefault(x => x.Code == resourceCode);
-            expected.Category = newCategory;
-            expected.Description = newDescription;
+        //[Theory]
+        //[InlineData(ResourceData.RESOURCE_01_CODE, "newkat1", null)]
+        //[InlineData(ResourceData.RESOURCE_04_CODE, null, "newDesk2")]
+        //[InlineData(ResourceData.RESOURCE_05_CODE, "newkat3", "newdesk3")]
+        //public async Task Success(string resourceCode, string newCategory, string newDescription)
+        //{
+        //    // Arrange
+        //    Resource expected = _resourceStoreBuilder.ResourceList.FirstOrDefault(x => x.Code == resourceCode);
+        //    expected.Category = newCategory;
+        //    expected.Description = newDescription;
 
-            // Act
-            ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
+        //    // Act
+        //    ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
 
-            IActionResult result = await _defaultSut.Edit(resourceCode, form);
-            Resource actual = await _defaultSut.GetByCode(resourceCode);
+        //    IActionResult result = await _defaultSut.Edit(resourceCode, form);
+        //    Resource actual = await _defaultSut.GetByCode(resourceCode);
 
-            // Assert
-            Assert.IsType<StatusCodeResult>(result);
-            Assert.Equal((int)HttpStatusCode.Accepted, ((StatusCodeResult)result).StatusCode);
-            Assert.Equal(expected, actual, _resourceComparer);
-        }
+        //    // Assert
+        //    Assert.IsType<StatusCodeResult>(result);
+        //    Assert.Equal((int)HttpStatusCode.Accepted, ((StatusCodeResult)result).StatusCode);
+        //    Assert.Equal(expected, actual, _resourceComparer);
+        //}
+
         [Theory]
         [InlineData("{invalidCategory}", null)]
         [InlineData("-invalidCategory-", "newDesk2@asd.com")]

@@ -11,6 +11,8 @@ namespace Sero.Doorman
     {
         public bool IsInitialized { get; private set; }
 
+        public ActionDescriptor CurrentAction { get; private set; }
+
         private IDictionary<string, object> _currentActionArguments;
         public IDictionary<string, object> CurrentActionArguments 
         {
@@ -37,6 +39,8 @@ namespace Sero.Doorman
         public void Initialize(ActionExecutingContext context)
         {
             CurrentActionArguments = context.ActionArguments;
+            context.ActionDescriptor = context.ActionDescriptor;
+
             IsInitialized = true;
         }
     }

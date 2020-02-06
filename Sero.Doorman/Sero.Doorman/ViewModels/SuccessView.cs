@@ -10,7 +10,7 @@ namespace Sero.Doorman
     {
         public Dictionary<string, string> _links { get; set; }
         public Dictionary<string, HateoasAction> _actions { get; set; }
-        public object _embeded { get; set; }
+        public object _embedded { get; set; }
 
         public SuccessView()
         {

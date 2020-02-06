@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {}
+    "C:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {}
   },
   "projects": {
-    "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {
+    "C:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj",
+        "projectUniqueName": "C:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj",
         "projectName": "Sero.Keeper",
-        "projectPath": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj",
+        "projectPath": "C:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\Sero.Keeper.csproj",
         "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-        "outputPath": "E:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\obj\\",
+        "outputPath": "C:\\Proyectos\\Sero\\Sero.Keeper\\Sero.Keeper\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

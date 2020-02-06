@@ -65,12 +65,12 @@ namespace Sero.Doorman.Stores
             // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
             if (filter.SortBy == nameof(Role.Code))
                 orderByPredicate = x => x.Code;
-            else if (filter.SortBy == nameof(Role.Description))
+            else if (filter.SortBy.ToLower() == nameof(Role.Description).ToLower())
                 orderByPredicate = x => x.Description;
-            else if (filter.SortBy == nameof(Role.DisplayName))
+            else if (filter.SortBy.ToLower() == nameof(Role.DisplayName).ToLower())
                 orderByPredicate = x => x.DisplayName;
 
-            if (filter.OrderBy == Order.DESC)
+            if (filter.OrderBy.ToLower() == Order.DESC.ToLower())
                 query = query.OrderByDescending(orderByPredicate);
             else
                 query = query.OrderBy(orderByPredicate);

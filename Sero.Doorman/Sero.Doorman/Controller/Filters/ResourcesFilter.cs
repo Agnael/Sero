@@ -14,7 +14,8 @@ namespace Sero.Doorman.Controller
         {
         }
 
-        public ResourcesFilter(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy) : base(textSearch, page, pageSize, sortBy, orderBy)
+        public ResourcesFilter(string textSearch, int page, int pageSize, string sortBy, string orderBy) 
+            : base(textSearch, page, pageSize, sortBy, orderBy)
         {
         }
 

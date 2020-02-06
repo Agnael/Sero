@@ -14,3 +14,11 @@ E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.A
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.AssemblyInfo.cs
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.dll
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.pdb
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.deps.json
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.dll
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.pdb
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.csprojAssemblyReference.cache
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.AssemblyInfoInputs.cache
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.AssemblyInfo.cs
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.dll
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.pdb

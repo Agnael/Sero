@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,27 +22,27 @@ namespace Sero.Doorman.Tests.Controllers.Resources
                 .FirstOrDefault(x => x.Code == resourceCode);
 
             // Act
-            Resource actual = await _defaultSut.GetByCode(resourceCode);
+            ObjectResult result = await _defaultSut.GetByCode(resourceCode) as ObjectResult;
+            ElementView view = result.Value as ElementView;
+            Resource actual = view._embedded as Resource;
 
             // Assert
             Assert.Equal(expected, actual, _resourceComparer);
         }
 
         [Fact]
-        public async Task UnexistingCode__ReturnsNullResource()
+        public async Task UnexistingCode__NotFound()
         {
             // Act
-            Resource actual = await _defaultSut.GetByCode("randomUnexistingCode");
-            Assert.Null(actual);
+            var result = await _defaultSut.GetByCode("randomUnexistingCode");
+            Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task NullCode__Throws_ArgumentNullException()
+        public async Task NullCode__BadRequest()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => 
-            {
-                await _defaultSut.GetByCode(null);
-            });
+            var result = await _defaultSut.GetByCode(null);
+            Assert.IsType<BadRequestResult>(result);
         }
     }
 }

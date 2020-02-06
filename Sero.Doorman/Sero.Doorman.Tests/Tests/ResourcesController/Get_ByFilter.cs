@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Sero.Doorman.Controller;
 using Sero.Doorman.Utils;
 using System;
@@ -60,12 +61,13 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         [InlineData("gfdEdUDYzOHkhpFM7kGKTMkVX8", -1, -1, "carlitos", "carlitos")]    // code demasiado largo
         [InlineData("asd asd", -1, -1, "carlitos", "carlitos")]    // code con espacios
         [InlineData("asd}asd", -1, -1, "carlitos", "carlitos")]    // code con caracter inválido
-        public async Task InvalidFilter__Throws_ArgumentException(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy)
+        public async Task InvalidFilter__Throws_ArgumentException(string textSearch, int page, int pageSize, string sortBy, string orderBy)
         {
-            await Assert.ThrowsAsync<ArgumentException>(async () =>
-            {
-                await _defaultSut.GetByFilter(new ResourcesFilter(textSearch, page, pageSize, sortBy, orderBy));
-            });
+            ObjectResult result = await _defaultSut.GetByFilter(new ResourcesFilter(textSearch, page, pageSize, sortBy, orderBy)) as ObjectResult;
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.Value);
+            Assert.IsType<ValidationErrorView>(result.Value);
         }
 
         // TODO: DESCOMENTÁ ESTE TAMB DALE

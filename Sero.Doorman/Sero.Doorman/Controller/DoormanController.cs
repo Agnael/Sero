@@ -134,7 +134,8 @@ namespace Sero.Doorman.Controller
             var view = new ElementView();
             view._actions = GetHateoasActions(resource, DoormanActionAttr.ResourceCode, ActionScope.Element);
             view._links = GetHateoasLinks(resource, DoormanActionAttr.ResourceCode, ActionScope.Element);
-            view._embeded = resource;
+
+            view._embedded = resource;
 
             return view;
         }
@@ -148,7 +149,6 @@ namespace Sero.Doorman.Controller
             var view = new CollectionView(usedFilter, totalAvailableElementCount);
             view._actions = GetHateoasActions(DoormanActionAttr.ResourceCode, ActionScope.Collection);
             view._links = GetHateoasLinks(DoormanActionAttr.ResourceCode, ActionScope.Collection);
-
             string urlSelf = GetCollectionEndpointUrl(usedFilter, calculatedLastPage);
             view._links.Add("self", urlSelf);
             AddPaginationHateoasLinks(view._links, usedFilter, calculatedLastPage);
@@ -160,7 +160,7 @@ namespace Sero.Doorman.Controller
                 SuccessView elementView = GetElementView(resource);
                 embeddedList.Add(elementView);
             }
-            view._embeded = embeddedList;
+            view._embedded = embeddedList;
 
             return new ObjectResult(view);
         }

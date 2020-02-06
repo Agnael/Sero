@@ -37,3 +37,16 @@ E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorma
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.csproj.CopyComplete
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.pdb
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Doorman.deps.json
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Doorman.dll
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Doorman.pdb
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Core.dll
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Loxy.dll
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Core.pdb
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\bin\Debug\netstandard2.1\Sero.Loxy.pdb
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.csprojAssemblyReference.cache
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.AssemblyInfoInputs.cache
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.AssemblyInfo.cs
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.csproj.CopyComplete
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.dll
+C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman\obj\Debug\netstandard2.1\Sero.Doorman.pdb

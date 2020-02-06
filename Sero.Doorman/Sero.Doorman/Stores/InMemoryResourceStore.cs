@@ -24,12 +24,12 @@ namespace Sero.Doorman.Stores
 
             // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
             // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
-            if (filter.SortBy == nameof(Resource.Code))
+            if (filter.SortBy.ToLower() == nameof(Resource.Code).ToLower())
                 orderByPredicate = x => x.Code;
-            else if (filter.SortBy == nameof(Resource.Category))
+            else if (filter.SortBy.ToLower() == nameof(Resource.Category).ToLower())
                 orderByPredicate = x => x.Category;
 
-            if (filter.OrderBy == Order.DESC)
+            if (filter.OrderBy.ToLower() == Order.DESC.ToLower())
                 query = query.OrderByDescending(orderByPredicate);
             else
                 query = query.OrderBy(orderByPredicate);

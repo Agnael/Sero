@@ -20,3 +20,14 @@ E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keepe
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.csproj.CopyComplete
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.dll
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.pdb
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\bin\Debug\netstandard2.1\Sero.Keeper.Ef.deps.json
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\bin\Debug\netstandard2.1\Sero.Keeper.Ef.dll
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\bin\Debug\netstandard2.1\Sero.Keeper.Ef.pdb
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\bin\Debug\netstandard2.1\Sero.Keeper.dll
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\bin\Debug\netstandard2.1\Sero.Keeper.pdb
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.csprojAssemblyReference.cache
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.AssemblyInfoInputs.cache
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.AssemblyInfo.cs
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.csproj.CopyComplete
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.dll
+C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper.Ef\obj\Debug\netstandard2.1\Sero.Keeper.Ef.pdb
