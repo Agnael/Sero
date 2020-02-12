@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj": {}
+    "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj": {}
   },
   "projects": {
-    "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
+    "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
       "version": "1.0.12",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj",
+        "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj",
         "projectName": "Sero.Core",
-        "projectPath": "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj",
+        "projectPath": "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj",
         "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\obj\\",
+        "outputPath": "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -74,14 +74,14 @@
         }
       }
     },
-    "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
+    "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj",
+        "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj",
         "projectName": "Sero.Doorman",
-        "projectPath": "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj",
+        "projectPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj",
         "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\obj\\",
+        "outputPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -100,11 +100,11 @@
         "frameworks": {
           "netstandard2.1": {
             "projectReferences": {
-              "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
-                "projectPath": "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj"
+              "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
+                "projectPath": "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj"
               },
-              "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj": {
-                "projectPath": "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj"
+              "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj": {
+                "projectPath": "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj"
               }
             }
           }
@@ -174,14 +174,14 @@
         }
       }
     },
-    "C:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj": {
+    "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
+        "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
         "projectName": "WebTest",
-        "projectPath": "C:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
+        "projectPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\WebTest.csproj",
         "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\obj\\",
+        "outputPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\WebTest\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -200,8 +200,8 @@
         "frameworks": {
           "netcoreapp3.0": {
             "projectReferences": {
-              "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
-                "projectPath": "C:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj"
+              "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj": {
+                "projectPath": "E:\\Proyectos\\Sero\\Sero.Doorman\\Sero.Doorman\\Sero.Doorman.csproj"
               }
             }
           }
@@ -280,14 +280,14 @@
         }
       }
     },
-    "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj": {
+    "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj": {
       "version": "1.0.7",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj",
+        "projectUniqueName": "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj",
         "projectName": "Sero.Loxy",
-        "projectPath": "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj",
+        "projectPath": "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\Sero.Loxy.csproj",
         "packagesPath": "C:\\Users\\Oleg\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\obj\\",
+        "outputPath": "E:\\Proyectos\\Sero\\Sero.Loxy\\Sero.Loxy\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -306,8 +306,8 @@
         "frameworks": {
           "netstandard2.0": {
             "projectReferences": {
-              "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
-                "projectPath": "C:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj"
+              "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj": {
+                "projectPath": "E:\\Proyectos\\Sero\\Sero.Core\\Sero.Core\\Sero.Core.csproj"
               }
             }
           }

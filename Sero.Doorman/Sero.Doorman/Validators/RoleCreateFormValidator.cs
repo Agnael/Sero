@@ -24,7 +24,8 @@ namespace Sero.Doorman.Validators
             RuleFor(x => x.Code)
                 .NotEmpty()
                 .IsCode()
-                .MustAsync(BeUniqueCodeAsync);
+                .MustAsync(BeUniqueCodeAsync)
+                .WithMessage("Already existing");
 
             RuleFor(x => x.Name)
                 .NotEmpty()
@@ -36,7 +37,8 @@ namespace Sero.Doorman.Validators
             RuleFor(x => x.Permissions)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
-                .MustAsync(BeExistingResourceCodes);
+                .MustAsync(BeExistingResourceCodes)
+                .WithMessage("Unexisting resource code detected.");
         }
 
         private async Task<bool> BeUniqueCodeAsync(string roleCode, CancellationToken cancelToken)

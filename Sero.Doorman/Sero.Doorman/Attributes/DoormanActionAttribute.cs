@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Sero.Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Sero.Doorman
 {
-    public class DoormanActionAttribute : Attribute
+    public class DoormanActionAttribute : HateoasActionAttribute
     {
-        public readonly string ResourceCode;
         public readonly PermissionLevel LevelRequired;
-        public readonly ActionScope ActionScope;
 
         public DoormanActionAttribute(string resourceCode, PermissionLevel levelRequired, ActionScope actionScope)
+            : base(resourceCode, actionScope)
         {
-            this.ResourceCode = resourceCode;
             this.LevelRequired = levelRequired;
-            this.ActionScope = actionScope;
         }
     }
 }

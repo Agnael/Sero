@@ -1,4 +1,5 @@
-﻿using Sero.Doorman.Controller;
+﻿using Sero.Core;
+using Sero.Doorman.Controller;
 using System;
 using System.Collections.Generic;
 using System.Linq;

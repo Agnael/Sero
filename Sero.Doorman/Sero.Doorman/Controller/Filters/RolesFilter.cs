@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sero.Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,7 +15,8 @@ namespace Sero.Doorman.Controller
         {
         }
 
-        public RolesFilter(string textSearch, ushort page, ushort pageSize, string sortBy, string orderBy) : base(textSearch, page, pageSize, sortBy, orderBy)
+        public RolesFilter(string textSearch, int page, int pageSize, string sortBy, string orderBy) 
+            : base(textSearch, page, pageSize, sortBy, orderBy)
         {
         }
 

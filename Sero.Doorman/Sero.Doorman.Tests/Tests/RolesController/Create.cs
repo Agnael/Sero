@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sero.Core;
 using Sero.Doorman.Controller;
 using Sero.Doorman.Tests.Controllers.Roles;
 using System;
@@ -28,26 +29,29 @@ namespace Sero.Doorman.Tests.Controllers.Roles
             }}
         };
 
-        // TODO: DESCOMENTÁ Y ARREGLÁ EL TEST, LO SAQUÉ PARA PROBAR ALGO DE HATEOAS
-        //// TENER EN CUENTA SOBRE MemberData:
-        //// https://stackoverflow.com/questions/30574322/memberdata-tests-show-up-as-one-test-instead-of-many
-        //// Este test va a verse como 1 solo en el TestExplorer, pero van a correrse todas las variantes deseadas
-        //[Theory]
-        //[MemberData(nameof(RoleFormTestList_Success))]
-        //public async Task Success(string code, string name, string description, params Permission[] permissions)
-        //{
-        //    // Arrange
-        //    Role expected = new Role(code, name, description, permissions);
+        // TENER EN CUENTA SOBRE MemberData:
+        // https://stackoverflow.com/questions/30574322/memberdata-tests-show-up-as-one-test-instead-of-many
+        // Este test va a verse como 1 solo en el TestExplorer, pero van a correrse todas las variantes deseadas
+        [Theory]
+        [MemberData(nameof(RoleFormTestList_Success))]
+        public async Task Success(string code, string name, string description, params Permission[] permissions)
+        {
+            // Arrange
+            Role expected = new Role(code, name, description, permissions);
 
-        //    // Act
-        //    IActionResult result = await _defaultSut.Create(new RoleCreateForm(code, name, description, permissions));
-        //    Role actual = await _defaultSut.GetByCode(code);
+            // Act
+            var form = new RoleCreateForm(code, name, description, permissions);
+            ObjectResult creationResult = await _defaultSut.Create(form) as ObjectResult;
+            Role createdFeedback = creationResult.Value as Role;
 
-        //    // Assert
-        //    Assert.IsType<StatusCodeResult>(result);
-        //    Assert.Equal((int)HttpStatusCode.Created, ((StatusCodeResult)result).StatusCode);
-        //    Assert.Equal(expected, actual, _roleComparer);
-        //}
+            ObjectResult createdResult = await _defaultSut.GetByCode(code) as ObjectResult;
+            Role actual = createdResult.Value as Role;
+
+            // Assert
+            Assert.Equal((int)HttpStatusCode.Created, creationResult.StatusCode);
+            Assert.Equal(expected, createdFeedback, _roleComparer);
+            Assert.Equal(expected, actual, _roleComparer);
+        }
 
         public static IEnumerable<object[]> RoleFormTestList_InvalidForm()
         {
@@ -71,10 +75,12 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         {
             var form = new RoleCreateForm(code, name, description, permissions);
             
-            IActionResult actual = await _defaultSut.Create(form);
+            ObjectResult result = await _defaultSut.Create(form) as ObjectResult;
 
-            Assert.IsType<ObjectResult>(actual);
-            Assert.Equal(StatusCodes.Status400BadRequest, (actual as ObjectResult).StatusCode);
+            Assert.NotNull(result);
+            Assert.NotNull(result.Value);
+            Assert.IsType< ValidationErrorView>(result.Value);
+            Assert.Equal(StatusCodes.Status400BadRequest, (result as ObjectResult).StatusCode);
         }
     }
 }

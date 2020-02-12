@@ -24,7 +24,7 @@ namespace Sero.Doorman.Tests
         public ResourcesController Build()
         {
             // TODO: OLEG CAMBIÁ ESE NULL QUE ESTOY PASANDO PARA CREAR EL RESOURCE CONTROLLER DEL TEST, ES SOLO PARA QUE BUILDEE LA SOLUTION
-            return new ResourcesController(null, ResourceStore);
+            return new ResourcesController(ResourceStore);
         }
     }
 }

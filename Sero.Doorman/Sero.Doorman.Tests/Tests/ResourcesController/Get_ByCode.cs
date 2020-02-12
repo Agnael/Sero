@@ -23,8 +23,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
 
             // Act
             ObjectResult result = await _defaultSut.GetByCode(resourceCode) as ObjectResult;
-            ElementView view = result.Value as ElementView;
-            Resource actual = view._embedded as Resource;
+            Resource actual = result.Value as Resource;
 
             // Assert
             Assert.Equal(expected, actual, _resourceComparer);

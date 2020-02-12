@@ -3,21 +3,26 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using System.Linq;
 using Nito.AsyncEx;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Sero.Doorman.Controller;
+using Sero.Core;
+using System;
+using System.Text.RegularExpressions;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Sero.Doorman
 {
     public class DoormanFilter : IAuthorizationFilter, IActionFilter
     {
-        public readonly RequestUtils RequestUtils;
 
-        public DoormanFilter(RequestUtils actionHolderService)
-        {
-            this.RequestUtils = actionHolderService;
-        }
+
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            this.RequestUtils.Initialize(context);
+            
         }
 
         public void OnActionExecuted(ActionExecutedContext context)

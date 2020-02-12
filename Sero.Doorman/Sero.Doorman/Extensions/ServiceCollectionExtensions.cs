@@ -9,7 +9,7 @@ namespace Sero.Doorman
     {
         public static void AddDoorman(this IServiceCollection services)
         {
-            services.AddScoped<RequestUtils>();
+            //services.AddScoped<HateoasUtils>();
         }
     }
 }

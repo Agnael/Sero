@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Sero.Core;
 using Sero.Core.Validation;
 using Sero.Doorman.Controller;
 using Sero.Doorman.Utils;

@@ -20,6 +20,7 @@ using Serilog.Filters;
 using WebTest.Models;
 using WebTest.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Sero.Core;
 
 namespace WebTest
 {
@@ -73,6 +74,7 @@ namespace WebTest
             {
                 config.WithSecurityKey("j3Kkms555Msmkekwau3IsSJJJSKA3geLOa3AgnAEL83a");
                 config.WithIssuer("olegsito");
+                config.UseHATEOAS = true;
             });
 
             //services.AddScoped<ICredentialStore>(_ => new InMemoryCredentialStore(TestCredentialList));
@@ -85,6 +87,7 @@ namespace WebTest
 
             services.AddControllers(conf => {
                 conf.Filters.Add<DoormanFilter>();
+                conf.Filters.Add<HateoasFilter>();
             });
         }
 

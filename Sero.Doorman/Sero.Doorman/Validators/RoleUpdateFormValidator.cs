@@ -31,7 +31,8 @@ namespace Sero.Doorman.Validators
             RuleFor(x => x.Permissions)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
-                .MustAsync(BeExistingResourceCodes);
+                .MustAsync(BeExistingResourceCodes)
+                .WithMessage("Unexisting resource code detected.");
         }
 
         private async Task<bool> BeExistingResourceCodes(IEnumerable<Permission> permissionList, CancellationToken token)

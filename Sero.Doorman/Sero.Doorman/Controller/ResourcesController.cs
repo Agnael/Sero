@@ -5,18 +5,17 @@ using System.Net;
 using System.Threading.Tasks;
 using Sero.Doorman.Validators;
 using FluentValidation.AspNetCore;
+using Sero.Core;
 
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    public class ResourcesController : DoormanController<Resource>
+    public class ResourcesController : HateoasController<Resource>
     {
         public readonly IResourceStore ResourceStore;
 
         public ResourcesController(
-            RequestUtils requestUtils,
             IResourceStore resourceStore)
-            : base(requestUtils)
         {
             this.ResourceStore = resourceStore;
         }
@@ -29,17 +28,16 @@ namespace Sero.Doorman.Controller
             validationResult.AddToModelState(this.ModelState, null);
 
             if (!validationResult.IsValid)
-                return await this.ValidationErrorAsync();
+                return ValidationError();
 
             var resourcesTotal = await ResourceStore.CountAsync(filter);
             var resources = await ResourceStore.FetchAsync(filter);
 
-            var view = await CollectionAsync(resources, resourcesTotal);
-            return view;
+            return Collection(filter, resourcesTotal, resources);
         }
 
         [HttpGet("api/doorman/admin/resources/{code}")]
-        [DoormanElementGetter]
+        [ElementGetter]
         [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Element)]
         public async Task<IActionResult> GetByCode(string code)
         {
@@ -51,8 +49,7 @@ namespace Sero.Doorman.Controller
             if (resource == null)
                 return NotFound();
 
-            var view = await ElementAsync(resource);
-            return view;
+            return Element(resource);
         }
 
         [HttpPut("api/doorman/admin/resources/{code}")]
@@ -61,24 +58,24 @@ namespace Sero.Doorman.Controller
             [FromRoute] string code,
             [FromBody] ResourceUpdateForm form)
         {
-            //if (string.IsNullOrEmpty(code))
-            //    throw new ArgumentNullException(nameof(code));
+            if (string.IsNullOrEmpty(code))
+                throw new ArgumentNullException(nameof(code));
 
-            //if (!await ResourceStore.IsExistingAsync(code))
-            //    throw new ArgumentException("Unexisting resourceCode");
+            if (!await ResourceStore.IsExistingAsync(code))
+                return NotFound();
 
             var validationResult = new ResourceUpdateFormValidator().Validate(form);
             validationResult.AddToModelState(this.ModelState, null);
 
             if (!validationResult.IsValid)
-                return await this.ValidationErrorAsync();
+                return ValidationError();
 
             Resource resource = await ResourceStore.FetchAsync(code);
             resource.Category = form.Category;
             resource.Description = form.Description;
 
-            await ResourceStore.UpdateAsync(resource);
-            return StatusCode((int)HttpStatusCode.Accepted);
+            string getterUrl = Url.Action(nameof(GetByCode), new { resource.Code });
+            return Accepted(getterUrl, resource);
         }
     }
 }

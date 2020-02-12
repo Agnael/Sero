@@ -32,7 +32,7 @@ namespace Sero.Doorman.Tests
         public RolesController Build()
         {
             // TODO: AGREGUÉ ESTE NULL PARA PROBAR ALGO DE HATEOAS PERO POR DIOS PENSÁ BIEN QUÉ METER ACA
-            return new RolesController(null, RoleStore, ResourceStore);
+            return new RolesController(RoleStore, ResourceStore);
         }
     }
 }
