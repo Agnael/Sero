@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Sero.Core
 {
-    public class HateoasController<TResource> : ControllerBase where TResource : class
+    public class HateoasController : ControllerBase
     {
         public HateoasController()
         {
@@ -23,31 +23,15 @@ namespace Sero.Core
         protected ObjectResult Collection(
             CollectionFilter usedFilter,
             int totalElementsExisting,
-            IEnumerable<TResource> elementsToReturn)
+            IEnumerable<object> elementsToReturn)
         {
             var view = new CollectionResult(usedFilter, totalElementsExisting, elementsToReturn);
             return new ObjectResult(view);
         }
 
-        protected ObjectResult Element(TResource elementToReturn)
+        protected ObjectResult Element(object elementToReturn)
         {
             return new ObjectResult(elementToReturn);
         }
-
-        //protected ObjectResult Created(TResource elementToReturn)
-        //{
-        //    var result = new ObjectResult(elementToReturn);
-        //    result.StatusCode = StatusCodes.Status201Created;
-
-        //    return result;
-        //}
-
-        //protected ObjectResult Accepted(TResource elementToReturn)
-        //{
-        //    var result = new ObjectResult(elementToReturn);
-        //    result.StatusCode = StatusCodes.Status202Accepted;
-            
-        //    return result;
-        //}
     }
 }

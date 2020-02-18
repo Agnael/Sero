@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,6 +20,11 @@ namespace Sero.Core
         public ActionDescriptor CurrentAction { get; private set; }
         public HateoasActionAttribute CurrentHateoasAttr { get; private set; }
         public string CurrentResourceCode { get; set; }
+
+        /// <summary>
+        ///     Current URL <WITHOUT> the querystring part
+        /// </summary>
+        public string CurrentBaseUrlPath { get; set; }
 
         public readonly IReadOnlyList<ActionDescriptor> ActionDescriptors;
         public IDictionary<string, object> ProvidedActionArguments { get; private set; }
@@ -31,6 +38,7 @@ namespace Sero.Core
         {        
             this.ProvidedActionArguments = context.ActionArguments;
             this.CurrentAction = context.ActionDescriptor;
+            this.CurrentBaseUrlPath = context.HttpContext.Request.Path;
 
             this.CurrentHateoasAttr =
                 (HateoasActionAttribute)this.CurrentAction
@@ -60,7 +68,7 @@ namespace Sero.Core
         {
             string resourceCode = CurrentHateoasAttr.ResourceCode;
             var elemLinks = GetElementLinks(resourceCode, resource);
-            var elemActions = GetHateoasActions(resource, resourceCode, ActionScope.Element);
+            var elemActions = GetHateoasActions(resourceCode, ActionScope.Element, resource);
 
             var view = new HateoasElementView(elemLinks, elemActions, resource);
             return view;
@@ -71,8 +79,8 @@ namespace Sero.Core
             // Para que funcione, TODOS los GETs que se hagan de collections, deben tomar SOLO un parámetro, que debe heredar de la clase CollectionFilter
             CollectionFilter filter = collection.UsedFilter;
             string resourceCode = CurrentHateoasAttr.ResourceCode;
-            var collectionActions = GetHateoasActions(null, resourceCode, ActionScope.Collection);
-            var collectionLinks = GetCollectionLinks(resourceCode, filter);
+            var collectionLinks = GetCollectionLinks(resourceCode, collection);
+            var collectionActions = GetHateoasActions(resourceCode, ActionScope.Collection);
 
             List<HateoasElementView> embeddedList = new List<HateoasElementView>();
             foreach (var element in collection.ElementsToReturn)
@@ -85,74 +93,48 @@ namespace Sero.Core
             return hateoasCollectionView;
         }
 
-        //[NonAction]
-        //public string GetCollectionEndpointUrl(
-        //    CollectionFilter filter,
-        //    int calculatedLastPage,
-        //    bool tryPreviousPage = false,
-        //    bool tryNextPage = false,
-        //    bool tryFirst = false,
-        //    bool tryLast = false)
-        //{
-        //    var relevantParams = new Dictionary<string, string>();
+        protected string CreateQsPair(string key, string value)
+        {
+            string result = string.Format("{0}={1}", key.ToLower(), value);
+            return result;
+        }
 
-        //    CollectionFilter newFilter = filter.Copy();
+        protected string GetCollectionLink(CollectionFilter filter)
+        {
+            var urlBuilder = new UrlBuilder<CollectionFilter>(this.CurrentBaseUrlPath);
 
-        //    if (tryPreviousPage)
-        //        newFilter.Page = filter.Page > 1 ? filter.Page - 1 : filter.Page;
+            if (!filter.IsDefaultTextSearch())
+                urlBuilder.AddParam(x => x.TextSearch, filter.TextSearch);
 
-        //    if (tryNextPage)
-        //        newFilter.Page = filter.Page < calculatedLastPage ? filter.Page + 1 : filter.Page;
+            if (!filter.IsDefaultPage())
+                urlBuilder.AddParam(x => x.Page, filter.Page);
 
-        //    if (tryFirst)
-        //        newFilter.Page = 1;
+            if (!filter.IsDefaultPageSize())
+                urlBuilder.AddParam(x => x.PageSize, filter.PageSize);
 
-        //    if (tryLast)
-        //        newFilter.Page = calculatedLastPage;
+            if (!filter.IsDefaultSortBy())
+                urlBuilder.AddParam(x => x.SortBy, filter.SortBy);
 
-        //    if (!newFilter.IsDefaultTextSearch())
-        //        relevantParams.Add(nameof(newFilter.TextSearch), newFilter.TextSearch);
+            if (!filter.IsDefaultOrderBy())
+                urlBuilder.AddParam(x => x.OrderBy, filter.OrderBy);
 
-        //    if (!newFilter.IsDefaultPage())
-        //        relevantParams.Add(nameof(newFilter.Page), newFilter.Page.ToString());
+            string url = urlBuilder.Build();
+            return url;
+        }
 
-        //    if (!newFilter.IsDefaultPageSize())
-        //        relevantParams.Add(nameof(newFilter.PageSize), newFilter.PageSize.ToString());
-
-        //    if (!newFilter.IsDefaultSortBy())
-        //        relevantParams.Add(nameof(newFilter.SortBy), newFilter.SortBy.ToString());
-
-        //    if (!newFilter.IsDefaultOrderBy())
-        //        relevantParams.Add(nameof(newFilter.OrderBy), newFilter.OrderBy);
-
-        //    List<string> qsParts = new List<string>();
-        //    string qs = null;
-
-        //    foreach (var param in relevantParams)
-        //        qsParts.Add(string.Format("{0}={1}", param.Key.ToLower(), param.Value));
-
-        //    if (qsParts.Count > 0)
-        //    {
-        //        string joinedParams = string.Join('&', qsParts.ToArray());
-        //        qs = string.Format("?{0}", joinedParams);
-        //    }
-
-        //    string urlWithoutQs = HttpContext.Request.Path;
-        //    string resultUrl = urlWithoutQs + qs;
-
-        //    return resultUrl;
-        //}
-
-        protected Dictionary<string, string> GetCollectionLinks(string resourceCode, CollectionFilter usedFiler)
+        protected Dictionary<string, string> GetCollectionLinks(string resourceCode, CollectionResult processedResult)
         {
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
-            if (usedFiler == null) throw new ArgumentNullException(nameof(usedFiler));
+            if (processedResult.UsedFilter == null) throw new ArgumentNullException(nameof(processedResult.UsedFilter));
+            if (processedResult is null) throw new ArgumentNullException(nameof(processedResult));
 
             // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
+            var usedFilter = processedResult.UsedFilter;
             var relevantLinks = ActionDescriptors.Where(x => x.IsLinkFor(resourceCode, ActionScope.Collection));
+            int calculatedLastPage = (int)Math.Ceiling((double)processedResult.TotalElementsExisting / usedFilter.PageSize);
 
             // POR CADA UNO DE ESOS METODOS, CREA UN LINK. 
-            // <NO> VA A CREAR LINK SELF
+            // <NO> CREA LINK SELF
             var linkMap = new Dictionary<string, string>();
             foreach(ActionDescriptor action in relevantLinks)
             {
@@ -167,10 +149,37 @@ namespace Sero.Core
             }
 
             // AGREGA SELF DE FORMA CUSTOM PORQUE PUEDE HABER PARAMETROS INNECESARIOS EN EL FILTRO ACTUAL QUE MANDÓ EL USER
+            linkMap.Add("self", GetCollectionLink(usedFilter));
 
             // AGREGA LINKS DE PAGINACION
+            if (usedFilter.Page >= 1 && usedFilter.Page <= calculatedLastPage)
+            {
+                if (usedFilter.Page > 1)
+                {
+                    CollectionFilter prevFilter = usedFilter.Copy();
+                    prevFilter.Page = usedFilter.Page > 1 ? usedFilter.Page - 1 : usedFilter.Page; ;
+                    string urlPrev = GetCollectionLink(prevFilter);
+                    linkMap.Add("prev", urlPrev);
 
+                    CollectionFilter firstFilter = usedFilter.Copy();
+                    firstFilter.Page = 1;
+                    string urlFirst = GetCollectionLink(firstFilter);
+                    linkMap.Add("first", urlFirst);
+                }
 
+                if (usedFilter.Page < calculatedLastPage)
+                {
+                    CollectionFilter nextFilter = usedFilter.Copy();
+                    nextFilter.Page = usedFilter.Page < calculatedLastPage ? usedFilter.Page + 1 : usedFilter.Page;
+                    string urlNext = GetCollectionLink(nextFilter);
+                    linkMap.Add("next", urlNext);
+
+                    CollectionFilter lastFilter = usedFilter.Copy();
+                    lastFilter.Page = calculatedLastPage;
+                    string urlLast = GetCollectionLink(lastFilter);
+                    linkMap.Add("last", urlLast);
+                }
+            }
 
             return linkMap;
         }
@@ -185,107 +194,48 @@ namespace Sero.Core
 
             foreach(ActionDescriptor action in relevantActions)
             {
+                var httpMethodAttr = action.GetHttpMethodAttribute();
+                string actionName = "";
 
-            }
+                if (action.IsElementGetter())
+                    actionName = "self";
+                else
+                    actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.DisplayName);
 
-
-
-
-
-            foreach (ActionDescriptor action in httpGetActions)
-            {
-                bool isMainGetter = action.IsElementGetter();
-
-                if (isMainGetter || CurrentAction.DisplayName != action.DisplayName)
-                {
-                    var hateoasAttr = action.GetHateoasAttribute();
-
-                    if (hateoasAttr.ResourceCode == resourceCode
-                        && hateoasAttr.ActionScope == ActionScope.Element)
-                    {
-                        var httpMethodAttr = action.GetHttpMethodAttribute();
-                        string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.DisplayName);
-
-                        if (isMainGetter)
-                            actionName = "self";
-
-                        string href = "/" + ReplaceUrlTemplate(httpMethodAttr.Template, element);
-                        linkMap.Add(actionName, href);
-                    }
-                }
+                string href = "/" + ReplaceUrlTemplate(httpMethodAttr.Template, element);
+                linkMap.Add(actionName, href);
             }
             return linkMap;
         }
 
-        //protected Dictionary<string, string> GetHateoasLinks(object element, string resourceCode, ActionScope scope)
-        //{
-        //    var linkMap = new Dictionary<string, string>();
-
-        //    foreach (ControllerActionDescriptor action in this.ActionDescriptors)
-        //    {
-        //        string actionHttpMethod = action.GetHttpMethodValue();
-        //        bool isGetter = action.IsElementGetter();
-
-        //        if (actionHttpMethod == "GET"
-        //            && (isGetter || CurrentAction.DisplayName != action.ActionName))
-        //        {
-        //            var hateoasAttr = action.GetHateoasAttribute();
-
-        //            if (hateoasAttr.ResourceCode == resourceCode
-        //                && hateoasAttr.ActionScope == ActionScope.Element)
-        //            {
-        //                var httpMethodAttr = action.GetHttpMethodAttribute();
-
-        //                string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
-
-        //                if (action.IsElementGetter() || CurrentAction.DisplayName == action.DisplayName)
-        //                    actionName = "self";
-
-        //                string href = "/" + httpMethodAttr.Template;
-
-        //                if (element != null)
-        //                    href = ReplaceUrlTemplate(href, element);
-
-        //                linkMap.Add(actionName, href);
-        //            }
-        //        }
-        //    }
-
-        //    return linkMap;
-        //}
-
-        protected Dictionary<string, HateoasAction> GetHateoasActions(object element, string resourceCode, ActionScope scope)
+        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, ActionScope scope)
         {
-            var actionMap = new Dictionary<string, HateoasAction>();
+            return this.GetHateoasActions(resourceCode, scope, null);
+        }
 
-            foreach (ControllerActionDescriptor action in this.ActionDescriptors)
+        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, ActionScope scope, object valuesSource)
+        {
+            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
+
+            var hateoasActionMap = new Dictionary<string, HateoasAction>();
+            var relevantMvcActions = ActionDescriptors.Where(x => x.IsActionFor(resourceCode, scope));
+
+            foreach (ControllerActionDescriptor action in relevantMvcActions)
             {
-                string actionHttpMethod = action.GetHttpMethodValue();
-                bool isGetter = action.IsElementGetter();
+                var httpMethodAttr = action.GetHttpMethodAttribute();
+                string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
 
-                if (actionHttpMethod != "GET"
-                    && (isGetter || CurrentAction.DisplayName != action.ActionName))
-                {
-                    var doormanAttr = action.GetHateoasAttribute();
+                HateoasAction newAction = new HateoasAction();
+                newAction.Method = httpMethodAttr.HttpMethods.First();
+                newAction.Href = "/" + httpMethodAttr.Template;
 
-                    if (doormanAttr.ResourceCode == resourceCode
-                        && doormanAttr.ActionScope == scope)
-                    {
-                        var httpMethodAttr = action.GetHttpMethodAttribute();
+                if(valuesSource != null)
+                    newAction.Href = ReplaceUrlTemplate(newAction.Href, valuesSource);
 
-                        string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
-                        HateoasAction newAction = new HateoasAction();
-                        newAction.Method = actionHttpMethod.ToUpper();
-                        newAction.Href = "/" + httpMethodAttr.Template;
-
-                        if (element != null)
-                            newAction.Href = ReplaceUrlTemplate(newAction.Href, element);
-
-                        actionMap.Add(actionName, newAction);
-                    }
-                }
+                hateoasActionMap.Add(actionName, newAction);
             }
-            return actionMap;
+
+            return hateoasActionMap;
         }
 
         protected string ReplaceUrlTemplate(string urlTemplate, object valuesSource)

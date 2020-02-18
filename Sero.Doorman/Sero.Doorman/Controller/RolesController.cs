@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    public class RolesController : HateoasController<Role>
+    public class RolesController : HateoasController
     {
         public readonly IRoleStore RoleStore;
         public readonly IResourceStore ResourceStore;

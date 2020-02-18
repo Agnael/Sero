@@ -10,7 +10,7 @@ using Sero.Core;
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    public class ResourcesController : HateoasController<Resource>
+    public class ResourcesController : HateoasController
     {
         public readonly IResourceStore ResourceStore;
 
