@@ -51,6 +51,8 @@ namespace Sero.Loxy
             await _loxy.PersistAsync();
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+            throw new Exception("LOXY DEV MODE EXCEPTION (SEE INNER EX)", ex);
+
             return false;
         }
     }

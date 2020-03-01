@@ -23,6 +23,7 @@ namespace WebTest
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseUrls("http://*:2610", "https://*:2611");
                     webBuilder.UseStartup<Startup>();
                 });
     }

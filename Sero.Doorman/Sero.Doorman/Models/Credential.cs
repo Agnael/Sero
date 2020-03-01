@@ -1,21 +1,24 @@
-﻿using Sero.Doorman;
+﻿using Sero.Core;
+using Sero.Doorman;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Sero.Doorman
 {
-    public class Credential
+    public class Credential : Element
     {
-        public int Id { get; set; }
+        public Guid CredentialId { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public DateTime CreationDate { get; set; }
+        public DateTime BirthDate { get; set; }
 
         public List<Role> Roles { get; set; }
 
-        public Credential()
+        public Credential() 
+            : base(Constants.ResourceCodes.Credentials)
         {
             Roles = new List<Role>();
         }

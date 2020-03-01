@@ -21,7 +21,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet("api/doorman/admin/resources")]
-        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Collection)]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, EndpointScope.Collection, EndpointRelation.Parent)]
         public async Task<IActionResult> GetByFilter([FromQuery] ResourcesFilter filter)
         {
             var validationResult = new ResourcesFilterValidator().Validate(filter);
@@ -37,8 +37,8 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet("api/doorman/admin/resources/{code}")]
-        [ElementGetter]
-        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, ActionScope.Element)]
+        [ElementGetter("resource")]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, EndpointScope.Element, EndpointRelation.Parent)]
         public async Task<IActionResult> GetByCode(string code)
         {
             if (string.IsNullOrEmpty(code))
@@ -53,7 +53,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpPut("api/doorman/admin/resources/{code}")]
-        [DoormanAction(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, ActionScope.Element)]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, EndpointScope.Element, EndpointRelation.Parent)]
         public async Task<IActionResult> Edit(
             [FromRoute] string code,
             [FromBody] ResourceUpdateForm form)

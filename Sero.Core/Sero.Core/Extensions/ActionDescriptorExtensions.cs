@@ -41,13 +41,13 @@ namespace Sero.Core
             return attr;
         }
 
-        public static HateoasActionAttribute GetHateoasAttribute(this ActionDescriptor action)
+        public static EndpointAttribute GetHateoasAttribute(this ActionDescriptor action)
         {
-            var hateoasAttr = (HateoasActionAttribute)action.EndpointMetadata.FirstOrDefault(x => x is HateoasActionAttribute);
+            var hateoasAttr = (EndpointAttribute)action.EndpointMetadata.FirstOrDefault(x => x is EndpointAttribute);
             return hateoasAttr;
         }
 
-        public static bool IsLinkFor(this ActionDescriptor action, string resourceCode, ActionScope scope)
+        public static bool IsLinkFor(this ActionDescriptor action, string resourceCode, EndpointScope scope)
         {
             bool isHttpGet = action.IsHttpGet();
 
@@ -57,10 +57,10 @@ namespace Sero.Core
             var hateoasAttr = action.GetHateoasAttribute();
 
             return hateoasAttr.ResourceCode == resourceCode
-                    && hateoasAttr.ActionScope == scope;
+                    && hateoasAttr.Scope == scope;
         }
 
-        public static bool IsActionFor(this ActionDescriptor action, string resourceCode, ActionScope scope)
+        public static bool IsActionFor(this ActionDescriptor action, string resourceCode, EndpointScope scope)
         {
             bool isHttpGet = action.IsHttpGet();
 
@@ -70,15 +70,15 @@ namespace Sero.Core
             var hateoasAttr = action.GetHateoasAttribute();
 
             return hateoasAttr.ResourceCode == resourceCode
-                    && hateoasAttr.ActionScope == scope;
+                    && hateoasAttr.Scope == scope;
         }
 
-        public static bool IsOfResource(this ActionDescriptor action, string resourceCode, ActionScope scope)
+        public static bool IsOfResource(this ActionDescriptor action, string resourceCode, EndpointScope scope)
         {
             var hateoasAttr = action.GetHateoasAttribute();
             
             return hateoasAttr.ResourceCode == resourceCode
-                    && hateoasAttr.ActionScope == scope;
+                    && hateoasAttr.Scope == scope;
         }
 
         public static bool IsElementGetter(this ActionDescriptor action)

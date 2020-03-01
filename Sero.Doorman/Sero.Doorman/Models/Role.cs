@@ -1,4 +1,5 @@
-﻿using Sero.Doorman;
+﻿using Sero.Core;
+using Sero.Doorman;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace Sero.Doorman
 {
-    public class Role
+    public class Role : Element
     {
         public string Code { get; set; }
         public string DisplayName { get; set; }
@@ -15,11 +16,18 @@ namespace Sero.Doorman
         public List<Permission> Permissions { get; set; }
 
         public Role()
+            : base(Constants.ResourceCodes.Resources)
         {
             this.Permissions = new List<Permission>();
         }
 
-        public Role(string code, string name, string description, params Permission[] permissions)
+        public Role (
+            string code, 
+            string name, 
+            string description, 
+            params Permission[] permissions
+        )
+        : base(Constants.ResourceCodes.Resources)
         {
             if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));

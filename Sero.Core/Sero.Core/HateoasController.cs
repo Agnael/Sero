@@ -33,5 +33,11 @@ namespace Sero.Core
         {
             return new ObjectResult(elementToReturn);
         }
+
+        protected ObjectResult ChildElement(object parent, object child)
+        {
+            var result = new ChildElementResult(parent, child);
+            return new ObjectResult(result);
+        }
     }
 }

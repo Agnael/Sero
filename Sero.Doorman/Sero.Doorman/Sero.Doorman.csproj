@@ -21,9 +21,4 @@
     <ProjectReference Include="..\..\Sero.Loxy\Sero.Loxy\Sero.Loxy.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\Navigation\" />
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
 </Project>

@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Sero.Core
 {
-    public enum ActionScope
+    public enum EndpointType
     {
-        None = 0,
-        Element = 1,
-        Collection = 2
+        UNDEFINED = 0,
+        Link = 1,
+        Action = 2
     }
 }

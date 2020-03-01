@@ -18,7 +18,6 @@ using Sero.Loxy;
 using Newtonsoft.Json;
 using Serilog.Filters;
 using WebTest.Models;
-using WebTest.Services;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Sero.Core;
 
@@ -26,30 +25,6 @@ namespace WebTest
 {
     public class Startup
     {
-        //public readonly IList<InMemoryCredential> TestCredentialList = new List<InMemoryCredential> {
-        //    new InMemoryCredential
-        //    {
-        //        Id = 1,
-        //        Email = "admin@mail.com",
-        //        Password = "admin",
-        //        Roles = new List<string>
-        //        {
-        //            "DefaultRole",
-        //            "Admin"
-        //        }
-        //    },
-        //    new InMemoryCredential
-        //    {
-        //        Id = 1,
-        //        Email = "user@mail.com",
-        //        Password = "user",
-        //        Roles = new List<string>
-        //        {
-        //            "DefaultRole"
-        //        }
-        //    }
-        //};
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -57,7 +32,6 @@ namespace WebTest
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureSerilog();
@@ -74,15 +48,11 @@ namespace WebTest
             {
                 config.WithSecurityKey("j3Kkms555Msmkekwau3IsSJJJSKA3geLOa3AgnAEL83a");
                 config.WithIssuer("olegsito");
-                config.UseHATEOAS = true;
             });
 
-            //services.AddScoped<ICredentialStore>(_ => new InMemoryCredentialStore(TestCredentialList));
-            //services.AddScoped<ICredentialService, CredentialService>();
-            services.AddScoped<ICustomUserService, CustomUserService>();
-            //services.AddScoped<IPermissionStore>(_ => new InMemoryPermissionStore(TestPermissionList));
             services.AddSingleton<IResourceStore>(_ => new InMemoryResourceStore(GetTestResources()));
             services.AddSingleton<IRoleStore>(_ => new InMemoryRoleStore(GetTestRoles()));
+            services.AddSingleton<ICredentialStore>(_ => new InMemoryCredentialStore(GetTestCredentials()));
             services.AddDoorman();
 
             services.AddControllers(conf => {
@@ -91,7 +61,6 @@ namespace WebTest
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(
             IApplicationBuilder app, 
             IWebHostEnvironment env, 
@@ -107,9 +76,20 @@ namespace WebTest
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapControllerRoute(
+                    "Role",
+                    "api/doorman/admin/credentials/{credentialId}/roles/{code}",
+                    new { controller = "Roles", action = "GetByCode" });
+
+                endpoints.MapControllerRoute(
+                    "Role",
+                    "api/doorman/admin/roles/{code}",
+                    new { controller = "Roles", action = "GetByCode" });
             });
 
             Doorman.HealthCheck(actionDescriptorCollectionProvider);
@@ -123,6 +103,46 @@ namespace WebTest
                             .WriteTo.Console()
                             .MinimumLevel.Information()
                             .CreateLogger();
+        }
+
+        public List<Credential> GetTestCredentials()
+        {
+            var testRoles = GetTestRoles();
+
+            var credentials = new List<Credential>();
+
+            Credential cred1 = new Credential();
+            cred1.CredentialId = new Guid("60530e59-a921-4ba5-89bb-6689446c4468");
+            cred1.CreationDate = new DateTime(2015, 5, 4);
+            cred1.Email = "oleg.kuzmych@nitra.com";
+            cred1.PasswordSalt = "ABCDEFGHIJKLMNOP";
+            cred1.PasswordHash = HashingUtil.GenerateHash("password123", cred1.PasswordSalt);
+            cred1.BirthDate = new DateTime(1994, 10, 26);
+            cred1.Roles = new List<Role>
+            {
+                testRoles[0],
+                testRoles[1],
+                testRoles[2],
+                testRoles[3]
+            };
+
+            Credential cred2 = new Credential();
+            cred2.CredentialId = new Guid("ac28ae7e-b85c-41e2-9813-31f9f9b12384");
+            cred2.CreationDate = new DateTime(2015, 5, 4);
+            cred2.Email = "random.pibito@gmail.com";
+            cred2.PasswordSalt = "ABCDEFGHIJKLMNOP";
+            cred2.PasswordHash = HashingUtil.GenerateHash("password321", cred1.PasswordSalt);
+            cred2.BirthDate = new DateTime(1998, 6, 2);
+            cred2.Roles = new List<Role>
+            {
+                testRoles[1],
+                testRoles[3]
+            };
+
+            credentials.Add(cred1);
+            credentials.Add(cred2);
+
+            return credentials;
         }
 
         public List<Role> GetTestRoles()

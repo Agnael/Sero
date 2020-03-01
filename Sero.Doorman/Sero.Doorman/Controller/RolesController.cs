@@ -27,7 +27,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet("api/doorman/admin/roles")]
-        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadOnly, ActionScope.Collection)]
+        [DoormanEndpoint(Constants.ResourceCodes.Roles, PermissionLevel.ReadOnly, EndpointScope.Collection, EndpointRelation.Parent)]
         public async Task<IActionResult> GetByFilter([FromQuery] RolesFilter filter)
         {
             var validationResult = new RolesFilterValidator().Validate(filter);
@@ -45,9 +45,11 @@ namespace Sero.Doorman.Controller
             return Collection(filter, resourcesTotal, resources);
         }
 
-        [HttpGet("api/doorman/admin/roles/{code}")]
-        [ElementGetter]
-        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
+        [HttpGet]
+        [Route("api/doorman/admin/roles/{code}")]
+        [Route("api/doorman/admin/credentials/{credentialId}/roles/{code}")]
+        [ElementGetter("role")]
+        [DoormanEndpoint(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, EndpointScope.Element, EndpointRelation.Parent)]
         public async Task<IActionResult> GetByCode(string code)
         {
             if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
@@ -61,7 +63,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpPost("api/doorman/admin/roles")]
-        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Collection)]
+        [DoormanEndpoint(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, EndpointScope.Collection, EndpointRelation.Parent)]
         public async Task<IActionResult> Create(RoleCreateForm form)
         {
             var validationResult = new RoleCreateFormValidator(RoleStore, ResourceStore).Validate(form);
@@ -78,7 +80,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpPut("api/doorman/admin/roles/{code}")]
-        [DoormanAction(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, ActionScope.Element)]
+        [DoormanEndpoint(Constants.ResourceCodes.Roles, PermissionLevel.ReadWrite, EndpointScope.Element, EndpointRelation.Parent)]
         public async Task<IActionResult> Edit(
             [FromRoute] string code,
             [FromBody] RoleUpdateForm form)

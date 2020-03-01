@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Sero.Doorman
 {
-    internal static class HashingUtil
+    public static class HashingUtil
     {
         public static string GenerateSalt()
         {

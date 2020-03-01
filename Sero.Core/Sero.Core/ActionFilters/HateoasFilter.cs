@@ -1,49 +1,35 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Sero.Core
 {
     public class HateoasFilter : IActionFilter
     {
-        public ActionDescriptor CurrentAction { get; private set; }
-        public HateoasActionAttribute CurrentHateoasAttr { get; private set; }
-        public string CurrentResourceCode { get; set; }
-
-        /// <summary>
-        ///     Current URL <WITHOUT> the querystring part
-        /// </summary>
+        public HateoasService HateoasService { get; private set; }
+        public Endpoint CurrentEndpoint { get; private set; }
         public string CurrentBaseUrlPath { get; set; }
-
-        public readonly IReadOnlyList<ActionDescriptor> ActionDescriptors;
         public IDictionary<string, object> ProvidedActionArguments { get; private set; }
 
-        public HateoasFilter(IActionDescriptorCollectionProvider actionDesccriptorCollectionProvider)
+        public HateoasFilter(HateoasService hateoasService)
         {
-            this.ActionDescriptors = actionDesccriptorCollectionProvider.ActionDescriptors.Items;
+            this.HateoasService = hateoasService;
         }
 
         public void OnActionExecuting(ActionExecutingContext context)
         {        
             this.ProvidedActionArguments = context.ActionArguments;
-            this.CurrentAction = context.ActionDescriptor;
             this.CurrentBaseUrlPath = context.HttpContext.Request.Path;
 
-            this.CurrentHateoasAttr =
-                (HateoasActionAttribute)this.CurrentAction
-                .EndpointMetadata
-                .FirstOrDefault(x => x is HateoasActionAttribute);
+            this.CurrentEndpoint = HateoasService.GetEndpointByAction((ControllerActionDescriptor)context.ActionDescriptor);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -66,9 +52,9 @@ namespace Sero.Core
 
         public HateoasElementView GetElementView(object resource)
         {
-            string resourceCode = CurrentHateoasAttr.ResourceCode;
+            string resourceCode = CurrentEndpoint.ResourceCode;
             var elemLinks = GetElementLinks(resourceCode, resource);
-            var elemActions = GetHateoasActions(resourceCode, ActionScope.Element, resource);
+            var elemActions = GetHateoasActions(resourceCode, EndpointScope.Element, resource);
 
             var view = new HateoasElementView(elemLinks, elemActions, resource);
             return view;
@@ -78,9 +64,9 @@ namespace Sero.Core
         {
             // Para que funcione, TODOS los GETs que se hagan de collections, deben tomar SOLO un parámetro, que debe heredar de la clase CollectionFilter
             CollectionFilter filter = collection.UsedFilter;
-            string resourceCode = CurrentHateoasAttr.ResourceCode;
+            string resourceCode = CurrentEndpoint.ResourceCode;
             var collectionLinks = GetCollectionLinks(resourceCode, collection);
-            var collectionActions = GetHateoasActions(resourceCode, ActionScope.Collection);
+            var collectionActions = GetHateoasActions(resourceCode, EndpointScope.Collection);
 
             List<HateoasElementView> embeddedList = new List<HateoasElementView>();
             foreach (var element in collection.ElementsToReturn)
@@ -130,26 +116,25 @@ namespace Sero.Core
 
             // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
             var usedFilter = processedResult.UsedFilter;
-            var relevantLinks = ActionDescriptors.Where(x => x.IsLinkFor(resourceCode, ActionScope.Collection));
+            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection);
             int calculatedLastPage = (int)Math.Ceiling((double)processedResult.TotalElementsExisting / usedFilter.PageSize);
 
             // POR CADA UNO DE ESOS METODOS, CREA UN LINK. 
             // <NO> CREA LINK SELF
             var linkMap = new Dictionary<string, string>();
-            foreach(ActionDescriptor action in relevantLinks)
+            foreach(Endpoint endpoint in relevantLinks)
             {
-                if (CurrentAction.DisplayName != action.DisplayName)
+                if (CurrentEndpoint.EndpointName != endpoint.EndpointName)
                 {
-                    var httpMethodAttr = action.GetHttpMethodAttribute();
-                    string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.DisplayName);
-                    string href = "/" + httpMethodAttr.Template;
-
-                    linkMap.Add(actionName, href);
+                    string href = "/" + endpoint.UrlTemplate;
+                    linkMap.Add(endpoint.EndpointName, href);
                 }
             }
 
             // AGREGA SELF DE FORMA CUSTOM PORQUE PUEDE HABER PARAMETROS INNECESARIOS EN EL FILTRO ACTUAL QUE MANDÓ EL USER
             linkMap.Add("self", GetCollectionLink(usedFilter));
+
+            if(CurrentEndpoint.Relation == EndpointRelation.Child)
 
             // AGREGA LINKS DE PAGINACION
             if (usedFilter.Page >= 1 && usedFilter.Page <= calculatedLastPage)
@@ -190,81 +175,57 @@ namespace Sero.Core
             if (element == null) throw new ArgumentNullException(nameof(element));
 
             var linkMap = new Dictionary<string, string>();
-            var relevantActions = ActionDescriptors.Where(x => x.IsLinkFor(resourceCode, ActionScope.Element));
+            var relevantEndpoints = HateoasService.GetLinks(resourceCode, EndpointScope.Element);
 
-            foreach(ActionDescriptor action in relevantActions)
+            foreach (Endpoint endpoint in relevantEndpoints)
             {
-                var httpMethodAttr = action.GetHttpMethodAttribute();
-                string actionName = "";
+                string actionName = endpoint.EndpointName;
 
-                if (action.IsElementGetter())
+                if (endpoint.IsElementGetter)
                     actionName = "self";
-                else
-                    actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.DisplayName);
 
-                string href = "/" + ReplaceUrlTemplate(httpMethodAttr.Template, element);
+                string href = "/" + endpoint.UrlTemplate;
+
+                if (element is IEnumerable
+                    && (element as IEnumerable<object>).Count() > 0)
+                {
+                    ReflectionUtils.ReplaceUrlTemplate(href, (element as IEnumerable<object>).First());
+                }
+                else
+                {
+                    ReflectionUtils.ReplaceUrlTemplate(href, element);
+                }
+
                 linkMap.Add(actionName, href);
             }
             return linkMap;
         }
 
-        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, ActionScope scope)
+        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, EndpointScope scope)
         {
             return this.GetHateoasActions(resourceCode, scope, null);
         }
 
-        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, ActionScope scope, object valuesSource)
+        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, EndpointScope scope, object valuesSource)
         {
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
 
             var hateoasActionMap = new Dictionary<string, HateoasAction>();
-            var relevantMvcActions = ActionDescriptors.Where(x => x.IsActionFor(resourceCode, scope));
+            var relevantEndpoints = HateoasService.GetActions(resourceCode, scope);
 
-            foreach (ControllerActionDescriptor action in relevantMvcActions)
+            foreach (Endpoint endpoint in relevantEndpoints)
             {
-                var httpMethodAttr = action.GetHttpMethodAttribute();
-                string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
-
                 HateoasAction newAction = new HateoasAction();
-                newAction.Method = httpMethodAttr.HttpMethods.First();
-                newAction.Href = "/" + httpMethodAttr.Template;
+                newAction.Method = endpoint.HttpMethod;
+                newAction.Href = "/" + endpoint.UrlTemplate;
 
                 if(valuesSource != null)
-                    newAction.Href = ReplaceUrlTemplate(newAction.Href, valuesSource);
+                    newAction.Href = ReflectionUtils.ReplaceUrlTemplate(newAction.Href, valuesSource);
 
-                hateoasActionMap.Add(actionName, newAction);
+                hateoasActionMap.Add(endpoint.EndpointName, newAction);
             }
 
             return hateoasActionMap;
-        }
-
-        protected string ReplaceUrlTemplate(string urlTemplate, object valuesSource)
-        {
-            string result = urlTemplate;
-
-            if (valuesSource != null)
-            {
-                // Este regex trae el texto ENTRE llaves {} pero sin las llaves
-                Regex regex = new Regex(@"(?<={)(.*?)(?=})");
-                var match = regex.Match(result);
-
-                if (match.Success)
-                {
-                    var elementPropList = valuesSource.GetType().GetProperties();
-
-                    foreach (Group matchedGroup in match.Groups)
-                    {
-                        string urlParam = matchedGroup.Value?.ToLower();
-                        PropertyInfo propInfo = elementPropList.FirstOrDefault(x => x.Name.ToLower() == urlParam);
-                        object foundValue = propInfo.GetValue(valuesSource, null);
-
-                        if (propInfo != null)
-                            result = result.Replace(string.Format("{{{0}}}", urlParam), foundValue?.ToString());
-                    }
-                }
-            }
-
-            return result;
         }
     }
 }

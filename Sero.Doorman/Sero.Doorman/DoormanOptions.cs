@@ -11,13 +11,10 @@ namespace Sero.Doorman
         public string SigningKeyBase64SourceString { get; private set; }
         public byte[] SigningKey { get; private set; }
 
-        public bool UseHATEOAS { get; set; }
-
         public DoormanOptions()
         {
             WithIssuer("Sero.Doorman");
             WithSecurityKey("j3Kkms555Msmkekwau3IsSJJJSKA3geLOa3AgnAEL83a");
-            UseHATEOAS = true;
         }
 
         public DoormanOptions WithSecurityKey(string base64string)

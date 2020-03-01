@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Sero.Core
 {
@@ -44,6 +45,40 @@ namespace Sero.Core
             {
                 return true;
             }
+        }
+
+        /// <summary>
+        ///     Dado un string que tenga placeholders especificados con el formato "{property}", reemplaza dichos placeholders
+        ///     con los VALORES de las properties del parámetro valuesSource que tengan el mismo nombre que un placeholder existente
+        ///     en el string.
+        /// </summary>
+        public static string ReplaceUrlTemplate(string urlTemplate, object valuesSource)
+        {
+            string result = urlTemplate;
+
+            if (valuesSource != null)
+            {
+                // Este regex trae el texto ENTRE llaves {} pero sin las llaves
+                Regex regex = new Regex(@"(?<={)(.*?)(?=})");
+                var match = regex.Match(result);
+
+                if (match.Success)
+                {
+                    var elementPropList = valuesSource.GetType().GetProperties();
+
+                    foreach (Group matchedGroup in match.Groups)
+                    {
+                        string urlParam = matchedGroup.Value?.ToLower();
+                        PropertyInfo propInfo = elementPropList.FirstOrDefault(x => x.Name.ToLower() == urlParam);
+                        object foundValue = propInfo.GetValue(valuesSource, null);
+
+                        if (propInfo != null)
+                            result = result.Replace(string.Format("{{{0}}}", matchedGroup.Value), foundValue?.ToString());
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

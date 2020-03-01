@@ -1,29 +1,29 @@
-﻿using Sero.Doorman;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Sero.Core;
 
 namespace Sero.Doorman
 {
-    public class Resource
+    public class Resource : Element
     {
         public string Code { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
 
         public Resource(string code)
+            : base(Constants.ResourceCodes.Resources)
         {
             this.Category = "uncategorized";
             this.Code = code;
         }
 
         public Resource(string category, string code)
+            : base(Constants.ResourceCodes.Resources)
         {
             this.Category = category;
             this.Code = code;
         }
 
         public Resource(string category, string code, string description)
+            : base(Constants.ResourceCodes.Resources)
         {
             this.Category = category;
             this.Code = code;

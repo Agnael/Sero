@@ -32,6 +32,8 @@ namespace Sero.Doorman
         {
             public const string Resources = "dm_resources";
             public const string Roles = "dm_roles";
+            public const string Credentials = "dm_credentials";
+            public const string CredentialRoles = "dm_credential_roles";
         }
 
         public class RoleCodes
