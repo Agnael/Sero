@@ -19,7 +19,7 @@ namespace WebTest
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(config => {
-                    config.ClearProviders();
+                    //config.ClearProviders();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

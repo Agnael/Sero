@@ -9,8 +9,8 @@ namespace Sero.Doorman
     {
         public readonly PermissionLevel LevelRequired;
 
-        public DoormanEndpointAttribute(string resourceCode, PermissionLevel levelRequired, EndpointScope actionScope, EndpointRelation relation)
-            : base(resourceCode, actionScope, relation)
+        public DoormanEndpointAttribute(string resourceCode, PermissionLevel levelRequired, EndpointScope actionScope)
+            : base(resourceCode, actionScope)
         {
             this.LevelRequired = levelRequired;
         }

@@ -81,10 +81,32 @@ namespace Sero.Core
                     && hateoasAttr.Scope == scope;
         }
 
+        public static GetterAttribute GetElementGetterAttribute(this ActionDescriptor action)
+        {
+            GetterAttribute attr = action.EndpointMetadata.FirstOrDefault(x => x is GetterAttribute) as GetterAttribute;
+            return attr;
+        }
+
         public static bool IsElementGetter(this ActionDescriptor action)
         {
-            bool isGetter = action.EndpointMetadata.Any(x => x is ElementGetterAttribute);
+            bool isGetter = action.EndpointMetadata.Any(x => x is GetterAttribute);
             return isGetter;
+        }
+
+        public static string GetGetterParameterName(this ActionDescriptor action)
+        {
+            if (!action.IsElementGetter())
+                throw new Exception("No tiene sentido obtener el parámetro marcado como GetterParameter en una action NO marcada como Getter.");
+
+            foreach(ControllerParameterDescriptor param in action.Parameters)
+            {
+                bool isGetterParam = param.ParameterInfo.CustomAttributes.Any(x => x.AttributeType == typeof(GetterParameterAttribute));
+
+                if (isGetterParam)
+                    return param.Name;
+            }
+
+            return null;
         }
     }
 }

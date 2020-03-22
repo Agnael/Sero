@@ -9,11 +9,14 @@ namespace Sero.Core
         public HateoasElementView(
             Dictionary<string, string> elementLinks,
             Dictionary<string, HateoasAction> elementActions,
-            object element)
+            object element,
+            HateoasLabeledLink parentLink = null)
         {
             this._links = elementLinks;
             this._actions = elementActions;
             this._embedded = element;
+
+            this._parent = parentLink;
         }
     }
 }

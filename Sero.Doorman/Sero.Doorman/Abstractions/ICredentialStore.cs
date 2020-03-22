@@ -8,16 +8,16 @@ namespace Sero.Doorman
 {
     public interface ICredentialStore
     {
-        Task<IEnumerable<Credential>> FetchAsync(CredentialsFilter filter);
-        Task<int> CountAsync(CredentialsFilter filter);
+        Task<Page<Credential>> Get(CredentialsFilter filter);
+        Task<Credential> Get(string username);
+        Task<Credential> GetByEmail(string email);
 
-        Task<Credential> FetchAsync(string email);
-        Task<Credential> FetchAsync(Guid credentialId);
+        Task<Page<Role>> GetRoles(string username, RolesFilter filter);
 
-        Task<bool> IsExistingAsync(string email);
-        Task<bool> IsExistingAsync(Guid credentialId);
+        Task<bool> IsUniqueEmail(string email);
+        Task<bool> IsUniqueUsername(string username);
 
-        Task SaveAsync(Credential user);
-        Task UpdateAsync(Credential user);
+        Task Save(Credential user);
+        Task Update(Credential user);
     }
 }

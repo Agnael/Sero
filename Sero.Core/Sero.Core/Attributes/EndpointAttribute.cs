@@ -9,13 +9,11 @@ namespace Sero.Core
     {
         public readonly string ResourceCode;
         public readonly EndpointScope Scope;
-        public readonly EndpointRelation Relation;
 
-        public EndpointAttribute(string resourceCode, EndpointScope actionScope, EndpointRelation relation)
+        public EndpointAttribute(string resourceCode, EndpointScope actionScope)
         {
             this.ResourceCode = resourceCode;
             this.Scope = actionScope;
-            this.Relation = relation;
         }
     }
 }

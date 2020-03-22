@@ -8,10 +8,10 @@ namespace Sero.Doorman
 {
     public interface IResourceStore
     {
-        Task<ICollection<Resource>> FetchAsync(ResourcesFilter filter);
-        Task<int> CountAsync(ResourcesFilter filter);
-        Task<Resource> FetchAsync(string resourceCode);
-        Task UpdateAsync(Resource resource);
-        Task<bool> IsExistingAsync(string resourceCode);
+        Task<Page<Resource>> Get(ResourcesFilter filter);
+
+        Task<Resource> Get(string resourceCode);
+        Task Update(Resource resource);
+        Task<bool> IsUnique(string resourceCode);
     }
 }

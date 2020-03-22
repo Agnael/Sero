@@ -34,8 +34,17 @@ namespace Sero.Core
             var endpoints = new List<Endpoint>();
             foreach (ControllerActionDescriptor action in actions)
             {
-                var hateoasAttr = action.GetHateoasAttribute();
-                bool isElementGetter = action.IsElementGetter();
+                var elementGetterAttr = action.GetElementGetterAttribute();
+                bool isElementGetter = false;
+                string getterParameterName = null;
+                string getterDisplayNameWhenLinked = null;
+
+                if (elementGetterAttr != null)
+                {
+                    isElementGetter = true;
+                    getterDisplayNameWhenLinked = elementGetterAttr.DisplayNameWhenLinked;
+                    getterParameterName = action.GetGetterParameterName();
+                }                               
 
                 string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
                 EndpointType type = EndpointType.Action;
@@ -45,14 +54,17 @@ namespace Sero.Core
                 if (httpMethod == HttpMethods.Get)
                     type = EndpointType.Link;
 
+                var hateoasAttr = action.GetHateoasAttribute();
+
                 Endpoint newEndpoint = new Endpoint(
+                    getterDisplayNameWhenLinked,
                     hateoasAttr.ResourceCode,
                     action.ActionName,
                     actionName,
                     isElementGetter,
+                    getterParameterName,
                     type,
                     hateoasAttr.Scope,
-                    hateoasAttr.Relation,
                     httpMethodAttr.Template,
                     httpMethod);
 
@@ -97,18 +109,29 @@ namespace Sero.Core
             return actions;
         }
 
-        public string GetElementGetterUrl(Element resource)
+        public Endpoint GetElementGetter(string resourceCode)
         {
-            if (resource == null) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException();
 
-            string resourceCode = resource.GetAppResourceCode();
+            Endpoint found =
+                _endpoints
+                .FirstOrDefault(x =>
+                    x.ResourceCode == resourceCode
+                    && x.IsElementGetter);
 
+            return found;
+        }
+
+        public string GetElementGetterUrl(string resourceCode, string getterKey, object getterValue)
+        {
+            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException();
+            
             Endpoint getterEndpoint = 
                 _endpoints
                 .FirstOrDefault(x => x.IsElementGetter
                     && x.ResourceCode == resourceCode);
 
-            string url = ReflectionUtils.ReplaceUrlTemplate("/" + getterEndpoint.UrlTemplate, resource);
+            string url = ReflectionUtils.ReplaceUrlTemplate("/" + getterEndpoint.UrlTemplate, getterKey, getterValue);
             return url;
         }
 
@@ -135,9 +158,6 @@ namespace Sero.Core
                 {
                     if (hateoasAttr.Scope != EndpointScope.Element)
                         throw new ElementGetterAttributeInANonElementScopedEndpoint(action);
-
-                    if (hateoasAttr.Relation != EndpointRelation.Parent)
-                        throw new ElementGetterAttributeInANonParentEndpoint(action);
 
                     // No puede haber múltiples acciones marcadas como ElementGetter para el mismo resourceCode
 

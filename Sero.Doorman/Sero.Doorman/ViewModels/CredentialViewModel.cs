@@ -6,7 +6,7 @@ namespace Sero.Doorman.ViewModels
 {
     public class CredentialViewModel
     {
-        public Guid CredentialId { get; set; }
+        public string Username { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime BirthDate { get; set; }
         public string Email { get; set; }
@@ -14,7 +14,7 @@ namespace Sero.Doorman.ViewModels
 
         public CredentialViewModel(Credential credential)
         {
-            this.CredentialId = credential.CredentialId;
+            this.Username = credential.Username;
             this.CreationDate = credential.CreationDate;
             this.BirthDate = credential.BirthDate;
             this.Email = credential.Email;

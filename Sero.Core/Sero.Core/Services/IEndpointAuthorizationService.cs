@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Sero.Core
 {
-    public enum EndpointRelation
+    public interface IEndpointAuthorizationService
     {
-        UNDEFINED = 0,
-        Parent = 1,
-        Child = 2
+        bool IsAuthorized(Endpoint endpoint);
     }
 }

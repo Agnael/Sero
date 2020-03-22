@@ -16,7 +16,7 @@ namespace Sero.Doorman
         public List<Permission> Permissions { get; set; }
 
         public Role()
-            : base(Constants.ResourceCodes.Resources)
+            : base(Constants.ResourceCodes.Roles)
         {
             this.Permissions = new List<Permission>();
         }
@@ -27,7 +27,7 @@ namespace Sero.Doorman
             string description, 
             params Permission[] permissions
         )
-        : base(Constants.ResourceCodes.Resources)
+        : base(Constants.ResourceCodes.Roles)
         {
             if (string.IsNullOrEmpty(code)) throw new ArgumentNullException(nameof(code));
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));

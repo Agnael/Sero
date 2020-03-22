@@ -385,6 +385,13 @@ C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.D
 C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.csproj.CopyComplete
 C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.dll
 C:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\obj\Debug\netcoreapp3.1\Sero.Doorman.Tests.pdb
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Coordination.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Tasks.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.Cancellation.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.Collections.Deque.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\cs\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\it\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.runner.visualstudio.dotnetcore.testadapter.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.runner.reporters.netcoreapp10.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.runner.utility.netcoreapp10.dll
@@ -419,16 +426,12 @@ E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Micros
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Microsoft.VisualStudio.TestPlatform.Common.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\testhost.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Moq.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Newtonsoft.Json.Bson.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Context.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Coordination.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Interop.WaitHandles.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Oop.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.AsyncEx.Tasks.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.Cancellation.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.Collections.Deque.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\Nito.Disposables.dll
+E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\shortid.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\System.IdentityModel.Tokens.Jwt.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\System.Security.Cryptography.Pkcs.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\System.Xml.XPath.XmlDocument.dll
@@ -437,7 +440,6 @@ E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.core.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\xunit.execution.dotnet.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\cs\Microsoft.TestPlatform.CoreUtilities.resources.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\cs\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\de\Microsoft.TestPlatform.CoreUtilities.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\de\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\es\Microsoft.TestPlatform.CoreUtilities.resources.dll
@@ -445,7 +447,6 @@ E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\es\Mic
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\fr\Microsoft.TestPlatform.CoreUtilities.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\fr\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\it\Microsoft.TestPlatform.CoreUtilities.resources.dll
-E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\it\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\ja\Microsoft.TestPlatform.CoreUtilities.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\ja\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 E:\Proyectos\Sero\Sero.Doorman\Sero.Doorman.Tests\bin\Debug\netcoreapp3.1\ko\Microsoft.TestPlatform.CoreUtilities.resources.dll

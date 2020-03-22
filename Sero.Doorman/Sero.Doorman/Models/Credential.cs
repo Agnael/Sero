@@ -8,7 +8,8 @@ namespace Sero.Doorman
 {
     public class Credential : Element
     {
-        public Guid CredentialId { get; set; }
+        public string Username { get; set; }
+        public string DisplayName { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }

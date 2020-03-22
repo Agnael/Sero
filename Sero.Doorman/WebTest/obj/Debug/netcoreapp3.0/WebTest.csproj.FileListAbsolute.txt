@@ -213,6 +213,7 @@ E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\Serilog.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\Serilog.Extensions.Logging.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\Serilog.Sinks.Console.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\Serilog.Sinks.Debug.dll
+E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\shortid.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\System.IdentityModel.Tokens.Jwt.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\System.Security.Cryptography.Pkcs.dll
 E:\Proyectos\Sero\Sero.Doorman\WebTest\bin\Debug\netcoreapp3.0\xunit.abstractions.dll

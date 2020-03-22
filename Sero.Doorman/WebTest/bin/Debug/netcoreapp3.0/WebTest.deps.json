@@ -1201,6 +1201,17 @@
           "lib/netstandard2.0/Serilog.Sinks.Debug.dll": {}
         }
       },
+      "shortid/2.0.0": {
+        "runtime": {
+          "lib/netstandard1.3/shortid.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard1.3/shortid.dll": {}
+        }
+      },
       "System.AppContext/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.0"
@@ -1885,6 +1896,7 @@
           "Sero.Core": "1.0.12",
           "Sero.Loxy": "1.0.7",
           "System.IdentityModel.Tokens.Jwt": "5.6.0",
+          "shortid": "2.0.0",
           "xunit.abstractions": "2.0.3"
         },
         "runtime": {
@@ -4350,6 +4362,13 @@
       "sha512": "sha512-nE5wvw9+J/V4lA+rEkFUETGjBabK8IlLQY5Z9KDzoo5LvILC4vhTOXLs7DGYs8h5juIf2nLZnVxHDXf404FqEQ==",
       "path": "serilog.sinks.debug/1.0.1",
       "hashPath": "serilog.sinks.debug.1.0.1.nupkg.sha512"
+    },
+    "shortid/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xzsoQPEPIRQ0JGWA4K9r0FMWxHiiYcQUsUMsdba4g2HlSB/2kwX3bSW7WhdlnbWj/kfUBH6zs9/KnspnG2DTxg==",
+      "path": "shortid/2.0.0",
+      "hashPath": "shortid.2.0.0.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

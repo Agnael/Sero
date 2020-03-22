@@ -31,25 +31,25 @@ namespace Sero.Doorman.Controller
             this.CredentialStore = credentialStore;
         }
 
-        [HttpGet("api/doorman/admin/credentials/{credentialId}")]
-        [ElementGetter("credential")]
-        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.ReadOnly, EndpointScope.Element, EndpointRelation.Parent)]
-        public async Task<IActionResult> GetByCredentialId([FromRoute] Guid? credentialId)
+        [HttpGet("api/doorman/admin/credentials/{username}")]
+        [Getter("credential")]
+        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.Read, EndpointScope.Element)]
+        public async Task<IActionResult> GetByUsername([GetterParameter][FromRoute] string username)
         {
-            if (!credentialId.HasValue)
+            if (string.IsNullOrEmpty(username))
                 return NotFound();
 
-            Credential credential = await this.CredentialStore.FetchAsync(credentialId.Value);
+            Credential credential = await this.CredentialStore.Get(username);
 
             if (credential == null)
                 return NotFound();
 
             CredentialViewModel vm = new CredentialViewModel(credential);
-            return Element(vm);
+            return Element<Credential>(vm);
         }
 
         [HttpGet("api/doorman/admin/credentials")]
-        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.ReadOnly, EndpointScope.Collection, EndpointRelation.Parent)]
+        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.Read, EndpointScope.Collection)]
         public async Task<IActionResult> GetByFilter([FromQuery] CredentialsFilter filter)
         {
             var validationResult = new CredentialsFilterValidator().Validate(filter);
@@ -58,35 +58,40 @@ namespace Sero.Doorman.Controller
             if (!validationResult.IsValid)
                 return ValidationError();
 
-            int credentialsTotal = await CredentialStore.CountAsync(filter);
-            var credentials = await CredentialStore.FetchAsync(filter);
+            var page = await CredentialStore.Get(filter);
 
-            if (credentials == null || credentials.Count() == 0)
+            if (page.IsEmpty)
                 return NotFound();
 
             var vmList = new List<CredentialViewModel>();
-            foreach (Credential credential in credentials)
+            foreach (Credential credential in page.Items)
             {
                 var newVm = new CredentialViewModel(credential);
                 vmList.Add(newVm);
             }
 
-            return Collection(filter, credentialsTotal, vmList);
+            return Collection<Credential>(filter, page.Total, vmList);
         }
 
-        [HttpGet("api/doorman/admin/credentials/{credentialId}/roles")]
-        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.ReadOnly, EndpointScope.Element, EndpointRelation.Child)]
-        public async Task<IActionResult> Roles(Guid? credentialId)
+        [HttpGet("api/doorman/admin/credentials/{username}/roles")]
+        [DoormanEndpoint(Constants.ResourceCodes.Credentials, PermissionLevel.Read, EndpointScope.Element)]
+        public async Task<IActionResult> Roles([FromRoute] string username, [FromQuery] RolesFilter filter)
         {
-            if (!credentialId.HasValue)
+            if (string.IsNullOrEmpty(username))
                 return NotFound();
 
-            Credential credential = await CredentialStore.FetchAsync(credentialId.Value);
+            var validationResult = new RolesFilterValidator().Validate(filter);
+            validationResult.AddToModelState(this.ModelState, null);
 
-            if (credential == null)
+            if (!validationResult.IsValid)
+                return ValidationError();
+
+            var page = await CredentialStore.GetRoles(username, filter);
+            
+            if (page.IsEmpty)
                 return NotFound();
 
-            return Element(credential.Roles);
+            return Collection<Role>(filter, page.Total, page.Items);
         }
     }
 }

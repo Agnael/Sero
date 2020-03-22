@@ -8,6 +8,12 @@ namespace Sero.Doorman
         public string Category { get; set; }
         public string Description { get; set; }
 
+        public Resource()
+            : base(Constants.ResourceCodes.Resources)
+        {
+
+        }
+
         public Resource(string code)
             : base(Constants.ResourceCodes.Resources)
         {

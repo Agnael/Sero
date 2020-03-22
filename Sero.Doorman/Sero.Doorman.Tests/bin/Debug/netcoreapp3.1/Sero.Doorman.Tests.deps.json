@@ -1127,6 +1127,14 @@
       "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
       "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
       "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {},
+      "shortid/2.0.0": {
+        "runtime": {
+          "lib/netstandard1.3/shortid.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
       "System.AppContext/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.0"
@@ -2132,6 +2140,7 @@
           "Sero.Core": "1.0.12",
           "Sero.Loxy": "1.0.7",
           "System.IdentityModel.Tokens.Jwt": "5.6.0",
+          "shortid": "2.0.0",
           "xunit.abstractions": "2.0.3"
         },
         "runtime": {
@@ -2940,6 +2949,13 @@
       "sha512": "sha512-Xb5rwAeptGSR5SmWAikfXb+MyNUebBsI2y+g79NlmQtBtuGB7Wv4Loc6ZZOWQnvA4z6FtH1kXSc/74v47GQ2MQ==",
       "path": "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl/4.3.0",
       "hashPath": "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512"
+    },
+    "shortid/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xzsoQPEPIRQ0JGWA4K9r0FMWxHiiYcQUsUMsdba4g2HlSB/2kwX3bSW7WhdlnbWj/kfUBH6zs9/KnspnG2DTxg==",
+      "path": "shortid/2.0.0",
+      "hashPath": "shortid.2.0.0.nupkg.sha512"
     },
     "System.AppContext/4.3.0": {
       "type": "package",

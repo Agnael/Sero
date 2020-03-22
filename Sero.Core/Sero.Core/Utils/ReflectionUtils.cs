@@ -32,7 +32,7 @@ namespace Sero.Core
             var currentPart = parts[0];
 
             PropertyInfo info = objType.GetProperty(currentPart);
-
+            
             if (info == null)
                 return false;
 
@@ -76,6 +76,31 @@ namespace Sero.Core
                             result = result.Replace(string.Format("{{{0}}}", matchedGroup.Value), foundValue?.ToString());
                     }
                 }
+            }
+
+            return result;
+        }
+
+        public static string ReplaceUrlTemplate(string urlTemplate, string replacementKey, object replacementValue)
+        {
+            if (string.IsNullOrEmpty(urlTemplate)) throw new ArgumentNullException(nameof(urlTemplate));
+            if (string.IsNullOrEmpty(replacementKey)) throw new ArgumentNullException(nameof(replacementKey));
+            if (replacementValue == null) throw new ArgumentNullException(nameof(replacementValue));
+
+            string result = urlTemplate;
+
+            // Este regex trae el texto ENTRE llaves {} pero sin las llaves
+            Regex regex = new Regex("{" + replacementKey + "}");
+            var match = regex.Match(result);
+
+            if (match.Success)
+            {
+                foreach (Group matchedGroup in match.Groups)
+                    result = result.Replace(matchedGroup.Value, replacementValue.ToString());
+            }
+            else
+            {
+                throw new Exception("El template de URL que se intenta usar no contiene un placeholder para la key que se está buscando reemplazar.");
             }
 
             return result;

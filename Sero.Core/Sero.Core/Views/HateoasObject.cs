@@ -8,6 +8,7 @@ namespace Sero.Core
     {
         public Dictionary<string, string> _links { get; set; }
         public Dictionary<string, HateoasAction> _actions { get; set; }
+        public HateoasLabeledLink _parent { get; set; }
         public object _embedded { get; set; }
 
         public HateoasObject()

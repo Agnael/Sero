@@ -8,12 +8,12 @@ namespace Sero.Doorman
 {
     public interface IRoleStore
     {
-        Task<ICollection<Role>> FetchAsync(RolesFilter filter);
-        Task<int> CountAsync(RolesFilter filter);
-        Task<Role> FetchAsync(string roleCode);
-        Task UpdateAsync(Role role);
-        Task CreateAsync(Role role);
-        Task DeleteAsync(string roleCode);
-        Task<bool> IsExistingAsync(string roleCode);
+        Task<Page<Role>> Get(RolesFilter filter);
+        Task<Role> Get(string roleCode);
+
+        Task Update(Role role);
+        Task Create(Role role);
+        Task Delete(string roleCode);
+        Task<bool> IsUnique(string roleCode);
     }
 }

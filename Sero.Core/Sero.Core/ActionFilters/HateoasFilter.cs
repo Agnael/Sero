@@ -16,6 +16,7 @@ namespace Sero.Core
     {
         public HateoasService HateoasService { get; private set; }
         public Endpoint CurrentEndpoint { get; private set; }
+        public ActionDescriptor CurrentActionDescriptor { get; private set; }
         public string CurrentBaseUrlPath { get; set; }
         public IDictionary<string, object> ProvidedActionArguments { get; private set; }
 
@@ -24,149 +25,84 @@ namespace Sero.Core
             this.HateoasService = hateoasService;
         }
 
-        public void OnActionExecuting(ActionExecutingContext context)
+        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {        
             this.ProvidedActionArguments = context.ActionArguments;
             this.CurrentBaseUrlPath = context.HttpContext.Request.Path;
 
             this.CurrentEndpoint = HateoasService.GetEndpointByAction((ControllerActionDescriptor)context.ActionDescriptor);
+            this.CurrentActionDescriptor = context.ActionDescriptor;
         }
 
-        public void OnActionExecuted(ActionExecutedContext context)
+        void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
             if (context.Result is ObjectResult
                 && !(context.Result is BadRequestObjectResult))
             {
                 var resultValue = (context.Result as ObjectResult).Value;
 
-                if (resultValue is CollectionResult)
+                if (resultValue is CollectionView)
                 {
-                    (context.Result as ObjectResult).Value = GetCollectionView((CollectionResult)resultValue);
+                    CollectionView output = (CollectionView)resultValue;
+                    (context.Result as ObjectResult).Value = GetHateoasView(output);
+                    return;
                 }
                 else
                 {
-                    (context.Result as ObjectResult).Value = GetElementView(resultValue);
+                    ElementView output = (ElementView)resultValue;
+                    (context.Result as ObjectResult).Value = GetHateoasView(output.ResourceCode, output.ViewModel);
+                    return;
                 }
             }
         }
 
-        public HateoasElementView GetElementView(object resource)
+        private HateoasLabeledLink GetParentLink(string parentResourceCode, string childResourceCode)
         {
-            string resourceCode = CurrentEndpoint.ResourceCode;
-            var elemLinks = GetElementLinks(resourceCode, resource);
-            var elemActions = GetHateoasActions(resourceCode, EndpointScope.Element, resource);
+            HateoasLabeledLink parentLink = null;
 
-            var view = new HateoasElementView(elemLinks, elemActions, resource);
-            return view;
+            if (childResourceCode != parentResourceCode)
+            {
+                Endpoint parentGetter = HateoasService.GetElementGetter(parentResourceCode);
+                object getterParamValue = ProvidedActionArguments[parentGetter.GetterParameterName];
+
+                string parentUrl = HateoasService.GetElementGetterUrl(parentResourceCode, parentGetter.GetterParameterName, getterParamValue);
+                parentLink = new HateoasLabeledLink(parentGetter.DisplayNameWhenLinked, parentUrl);
+            }
+
+            return parentLink;
         }
 
-        public HateoasCollectionView GetCollectionView(CollectionResult collection)
+        private HateoasCollectionView GetHateoasView(CollectionView output)
         {
-            // Para que funcione, TODOS los GETs que se hagan de collections, deben tomar SOLO un parámetro, que debe heredar de la clase CollectionFilter
-            CollectionFilter filter = collection.UsedFilter;
-            string resourceCode = CurrentEndpoint.ResourceCode;
-            var collectionLinks = GetCollectionLinks(resourceCode, collection);
-            var collectionActions = GetHateoasActions(resourceCode, EndpointScope.Collection);
+            string parentResourceCode = CurrentEndpoint.ResourceCode;
+            string currentResourceCode = output.ResourceCode;
 
+            var collectionLinks = GetCollectionLinks(currentResourceCode, output);
+            var collectionActions = GetHateoasActions(currentResourceCode, EndpointScope.Collection);
+            
             List<HateoasElementView> embeddedList = new List<HateoasElementView>();
-            foreach (var element in collection.ElementsToReturn)
+            foreach (var element in output.ViewModels)
             {
-                HateoasElementView elementView = GetElementView(element);
+                HateoasElementView elementView = GetHateoasView(currentResourceCode, element);
                 embeddedList.Add(elementView);
             }
 
-            var hateoasCollectionView = new HateoasCollectionView(filter, collection.TotalElementsExisting, collectionLinks, collectionActions, embeddedList);
-            return hateoasCollectionView;
+            HateoasLabeledLink parentLink = this.GetParentLink(parentResourceCode, currentResourceCode);
+
+            var collectionView = new HateoasCollectionView(output.UsedFilter, output.TotalExisting, collectionLinks, collectionActions, embeddedList, parentLink);
+            return collectionView;
         }
 
-        protected string CreateQsPair(string key, string value)
+        public HateoasElementView GetHateoasView(string resourceCode, object viewModel)
         {
-            string result = string.Format("{0}={1}", key.ToLower(), value);
-            return result;
-        }
+            string parentResourceCode = CurrentEndpoint.ResourceCode;
+            HateoasLabeledLink parentLink = this.GetParentLink(parentResourceCode, resourceCode);
 
-        protected string GetCollectionLink(CollectionFilter filter)
-        {
-            var urlBuilder = new UrlBuilder<CollectionFilter>(this.CurrentBaseUrlPath);
+            var elemLinks = GetElementLinks(resourceCode, viewModel);
+            var elemActions = GetHateoasActions(resourceCode, EndpointScope.Element, viewModel);
 
-            if (!filter.IsDefaultTextSearch())
-                urlBuilder.AddParam(x => x.TextSearch, filter.TextSearch);
-
-            if (!filter.IsDefaultPage())
-                urlBuilder.AddParam(x => x.Page, filter.Page);
-
-            if (!filter.IsDefaultPageSize())
-                urlBuilder.AddParam(x => x.PageSize, filter.PageSize);
-
-            if (!filter.IsDefaultSortBy())
-                urlBuilder.AddParam(x => x.SortBy, filter.SortBy);
-
-            if (!filter.IsDefaultOrderBy())
-                urlBuilder.AddParam(x => x.OrderBy, filter.OrderBy);
-
-            string url = urlBuilder.Build();
-            return url;
-        }
-
-        protected Dictionary<string, string> GetCollectionLinks(string resourceCode, CollectionResult processedResult)
-        {
-            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
-            if (processedResult.UsedFilter == null) throw new ArgumentNullException(nameof(processedResult.UsedFilter));
-            if (processedResult is null) throw new ArgumentNullException(nameof(processedResult));
-
-            // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
-            var usedFilter = processedResult.UsedFilter;
-            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection);
-            int calculatedLastPage = (int)Math.Ceiling((double)processedResult.TotalElementsExisting / usedFilter.PageSize);
-
-            // POR CADA UNO DE ESOS METODOS, CREA UN LINK. 
-            // <NO> CREA LINK SELF
-            var linkMap = new Dictionary<string, string>();
-            foreach(Endpoint endpoint in relevantLinks)
-            {
-                if (CurrentEndpoint.EndpointName != endpoint.EndpointName)
-                {
-                    string href = "/" + endpoint.UrlTemplate;
-                    linkMap.Add(endpoint.EndpointName, href);
-                }
-            }
-
-            // AGREGA SELF DE FORMA CUSTOM PORQUE PUEDE HABER PARAMETROS INNECESARIOS EN EL FILTRO ACTUAL QUE MANDÓ EL USER
-            linkMap.Add("self", GetCollectionLink(usedFilter));
-
-            if(CurrentEndpoint.Relation == EndpointRelation.Child)
-
-            // AGREGA LINKS DE PAGINACION
-            if (usedFilter.Page >= 1 && usedFilter.Page <= calculatedLastPage)
-            {
-                if (usedFilter.Page > 1)
-                {
-                    CollectionFilter prevFilter = usedFilter.Copy();
-                    prevFilter.Page = usedFilter.Page > 1 ? usedFilter.Page - 1 : usedFilter.Page; ;
-                    string urlPrev = GetCollectionLink(prevFilter);
-                    linkMap.Add("prev", urlPrev);
-
-                    CollectionFilter firstFilter = usedFilter.Copy();
-                    firstFilter.Page = 1;
-                    string urlFirst = GetCollectionLink(firstFilter);
-                    linkMap.Add("first", urlFirst);
-                }
-
-                if (usedFilter.Page < calculatedLastPage)
-                {
-                    CollectionFilter nextFilter = usedFilter.Copy();
-                    nextFilter.Page = usedFilter.Page < calculatedLastPage ? usedFilter.Page + 1 : usedFilter.Page;
-                    string urlNext = GetCollectionLink(nextFilter);
-                    linkMap.Add("next", urlNext);
-
-                    CollectionFilter lastFilter = usedFilter.Copy();
-                    lastFilter.Page = calculatedLastPage;
-                    string urlLast = GetCollectionLink(lastFilter);
-                    linkMap.Add("last", urlLast);
-                }
-            }
-
-            return linkMap;
+            var view = new HateoasElementView(elemLinks, elemActions, viewModel, parentLink);
+            return view;
         }
 
         protected Dictionary<string, string> GetElementLinks(string resourceCode, object element)
@@ -189,11 +125,11 @@ namespace Sero.Core
                 if (element is IEnumerable
                     && (element as IEnumerable<object>).Count() > 0)
                 {
-                    ReflectionUtils.ReplaceUrlTemplate(href, (element as IEnumerable<object>).First());
+                    href = ReflectionUtils.ReplaceUrlTemplate(href, (element as IEnumerable<object>).First());
                 }
                 else
                 {
-                    ReflectionUtils.ReplaceUrlTemplate(href, element);
+                    href = ReflectionUtils.ReplaceUrlTemplate(href, element);
                 }
 
                 linkMap.Add(actionName, href);
@@ -219,13 +155,97 @@ namespace Sero.Core
                 newAction.Method = endpoint.HttpMethod;
                 newAction.Href = "/" + endpoint.UrlTemplate;
 
-                if(valuesSource != null)
+                if (valuesSource != null)
                     newAction.Href = ReflectionUtils.ReplaceUrlTemplate(newAction.Href, valuesSource);
 
                 hateoasActionMap.Add(endpoint.EndpointName, newAction);
             }
 
             return hateoasActionMap;
+        }
+
+        protected Dictionary<string, string> GetCollectionLinks(string resourceCode, CollectionView output)
+        {
+            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
+            if (output.UsedFilter == null) throw new ArgumentNullException(nameof(output.UsedFilter));
+            if (output is null) throw new ArgumentNullException(nameof(output));
+
+            // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
+            var usedFilter = output.UsedFilter;
+            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection);
+            int calculatedLastPage = (int)Math.Ceiling((double)output.TotalExisting / usedFilter.PageSize);
+
+            // POR CADA UNO DE ESOS METODOS, CREA UN LINK. 
+            // <NO> CREA LINK SELF
+            var linkMap = new Dictionary<string, string>();
+            foreach (Endpoint endpoint in relevantLinks)
+            {
+                if (CurrentEndpoint.EndpointName != endpoint.EndpointName)
+                {
+                    string href = "/" + endpoint.UrlTemplate;
+                    linkMap.Add(endpoint.EndpointName, href);
+                }
+            }
+
+            // AGREGA SELF DE FORMA CUSTOM PORQUE PUEDE HABER PARAMETROS INNECESARIOS EN EL FILTRO ACTUAL QUE MANDÓ EL USER
+            linkMap.Add("self", GetCollectionLink(usedFilter));
+
+            //if (CurrentEndpoint.Relation == EndpointRelation.Child)
+
+                // AGREGA LINKS DE PAGINACION
+                if (usedFilter.Page >= 1 && usedFilter.Page <= calculatedLastPage)
+                {
+                    if (usedFilter.Page > 1)
+                    {
+                        CollectionFilter prevFilter = usedFilter.Copy();
+                        prevFilter.Page = usedFilter.Page > 1 ? usedFilter.Page - 1 : usedFilter.Page; ;
+                        string urlPrev = GetCollectionLink(prevFilter);
+                        linkMap.Add("prev", urlPrev);
+
+                        CollectionFilter firstFilter = usedFilter.Copy();
+                        firstFilter.Page = 1;
+                        string urlFirst = GetCollectionLink(firstFilter);
+                        linkMap.Add("first", urlFirst);
+                    }
+
+                    if (usedFilter.Page < calculatedLastPage)
+                    {
+                        CollectionFilter nextFilter = usedFilter.Copy();
+                        nextFilter.Page = usedFilter.Page < calculatedLastPage ? usedFilter.Page + 1 : usedFilter.Page;
+                        string urlNext = GetCollectionLink(nextFilter);
+                        linkMap.Add("next", urlNext);
+
+                        CollectionFilter lastFilter = usedFilter.Copy();
+                        lastFilter.Page = calculatedLastPage;
+                        string urlLast = GetCollectionLink(lastFilter);
+                        linkMap.Add("last", urlLast);
+                    }
+                }
+
+            return linkMap;
+        }
+
+        protected string GetCollectionLink(CollectionFilter filter)
+        {
+            var urlBuilder = new UrlBuilder<CollectionFilter>(this.CurrentBaseUrlPath);
+
+            if (!filter.IsDefaultTextSearch())
+                urlBuilder.AddParam(x => x.TextSearch, filter.TextSearch);
+
+            if (!filter.IsDefaultPage())
+                urlBuilder.AddParam(x => x.Page, filter.Page);
+
+            if (!filter.IsDefaultPageSize())
+                urlBuilder.AddParam(x => x.PageSize, filter.PageSize);
+
+            if (!filter.IsDefaultSortBy())
+                urlBuilder.AddParam(x => x.SortBy, filter.SortBy);
+
+            if (!filter.IsDefaultOrderBy())
+                urlBuilder.AddParam(x => x.OrderBy, filter.OrderBy);
+
+            string url = urlBuilder.Build();
+            return url;
         }
     }
 }

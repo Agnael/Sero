@@ -17,59 +17,29 @@ namespace Sero.Doorman.Stores
             this.Roles = roles;
         }
 
-        public async Task CreateAsync(Role role)
+        public async Task Create(Role role)
         {
             Roles.Add(role);
         }
 
-        public async Task DeleteAsync(string roleCode)
+        public async Task Delete(string roleCode)
         {
             var foundRole = Roles.FirstOrDefault(x => x.Code == roleCode);
             Roles.Remove(foundRole);
         }
 
-        public async Task<int> CountAsync(RolesFilter filter)
+        public async Task<Page<Role>> Get(RolesFilter filter)
         {
-            IEnumerable<Role> query = Roles;
             Func<Role, string> orderByPredicate = null;
 
-            // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
-            // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
-            if (filter.SortBy == nameof(Role.Code))
-                orderByPredicate = x => x.Code;
-            else if (filter.SortBy == nameof(Role.Description))
-                orderByPredicate = x => x.Description;
-            else if (filter.SortBy == nameof(Role.DisplayName))
-                orderByPredicate = x => x.DisplayName;
-
-            if (filter.OrderBy == Order.DESC)
-                query = query.OrderByDescending(orderByPredicate);
-            else
-                query = query.OrderBy(orderByPredicate);
-
-            if (!string.IsNullOrEmpty(filter.TextSearch))
-                query = query.Where(x => x.Code.ToLower().Contains(filter.TextSearch.ToLower())
-                                        || x.Description.ToLower().Contains(filter.TextSearch.ToLower())
-                                        || x.DisplayName.ToLower().Contains(filter.TextSearch.ToLower()));
-
-            var result = query.Count();
-
-            return result;
-        }
-
-        public async Task<ICollection<Role>> FetchAsync(RolesFilter filter)
-        {
-            IEnumerable<Role> query = Roles;
-            Func<Role, string> orderByPredicate = null;
-
-            // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
-            // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
             if (filter.SortBy == nameof(Role.Code))
                 orderByPredicate = x => x.Code;
             else if (filter.SortBy.ToLower() == nameof(Role.Description).ToLower())
                 orderByPredicate = x => x.Description;
             else if (filter.SortBy.ToLower() == nameof(Role.DisplayName).ToLower())
                 orderByPredicate = x => x.DisplayName;
+
+            IEnumerable<Role> query = Roles;
 
             if (filter.OrderBy.ToLower() == Order.DESC.ToLower())
                 query = query.OrderByDescending(orderByPredicate);
@@ -81,27 +51,29 @@ namespace Sero.Doorman.Stores
                                         || x.Description.ToLower().Contains(filter.TextSearch.ToLower())
                                         || x.DisplayName.ToLower().Contains(filter.TextSearch.ToLower()));
 
-            var result = query
+            int count = query.Count();
+
+            var list = query
                 .Skip((filter.Page - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToList();
 
-            return result;
+            return new Page<Role>(count, list);
         }
 
-        public async Task<Role> FetchAsync(string roleCode)
+        public async Task<Role> Get(string roleCode)
         {
             var result = Roles.FirstOrDefault(x => x.Code == roleCode);
             return result;
         }
 
-        public async Task<bool> IsExistingAsync(string roleCode)
+        public async Task<bool> IsUnique(string roleCode)
         {
-            var result = Roles.Any(x => x.Code == roleCode);
+            var result = !Roles.Any(x => x.Code == roleCode);
             return result;
         }
 
-        public async Task UpdateAsync(Role role)
+        public async Task Update(Role role)
         {
             var existingRole = Roles.FirstOrDefault(x => x.Code == role.Code);
             existingRole.Description = role.Description;

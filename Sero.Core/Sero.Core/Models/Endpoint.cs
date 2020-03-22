@@ -6,6 +6,8 @@ namespace Sero.Core
 {
     public class Endpoint
     {
+        public readonly string DisplayNameWhenLinked;
+
         public readonly string ResourceCode;
 
         /// <summary>
@@ -23,6 +25,7 @@ namespace Sero.Core
         ///     Solo puede haber un ElementGetter por recurso.
         /// </summary>
         public readonly bool IsElementGetter;
+        public readonly string GetterParameterName;
 
         /// <summary>
         ///     Indica si este endpoint es un link (GET) o una acción (POST, PUT, DELETE) sobre este resourceCode.
@@ -31,30 +34,34 @@ namespace Sero.Core
 
         public readonly EndpointScope Scope;
 
-        public readonly EndpointRelation Relation;
-
         public readonly string UrlTemplate;
 
         public readonly string HttpMethod;
 
         public Endpoint(
+            string displayNameWhenLinked,
             string resourceCode,
             string mvcActionName,
             string endpointName,
             bool isElementGetter,
+            string getterParameterName,
             EndpointType type,
             EndpointScope scope,
-            EndpointRelation relation,
             string urlTemplate,
             string httpMethod)
         {
+            if (isElementGetter && string.IsNullOrEmpty(getterParameterName))
+                throw new Exception("Si el endpoint es un ElementGetter, entonces es obligatorio proporcionar un GetterParameterName NO NULO.");
+
+            this.IsElementGetter = isElementGetter;
+            this.GetterParameterName = getterParameterName;
+
+            this.DisplayNameWhenLinked = displayNameWhenLinked;
             this.ResourceCode = resourceCode;
             this.MvcActionName = mvcActionName;
             this.EndpointName = endpointName;
-            this.IsElementGetter = isElementGetter;
             this.Type = type;
             this.Scope = scope;
-            this.Relation = relation;
             this.UrlTemplate = urlTemplate;
             this.HttpMethod = httpMethod;
         }

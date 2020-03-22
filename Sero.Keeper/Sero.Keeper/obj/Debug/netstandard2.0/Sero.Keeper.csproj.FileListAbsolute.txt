@@ -17,6 +17,7 @@ C:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.p
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.deps.json
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.dll
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\bin\Debug\netstandard2.0\Sero.Keeper.pdb
+E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.csprojAssemblyReference.cache
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.AssemblyInfoInputs.cache
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.AssemblyInfo.cs
 E:\Proyectos\Sero\Sero.Keeper\Sero.Keeper\obj\Debug\netstandard2.0\Sero.Keeper.dll

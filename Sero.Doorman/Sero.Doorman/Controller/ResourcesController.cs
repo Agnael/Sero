@@ -21,7 +21,7 @@ namespace Sero.Doorman.Controller
         }
 
         [HttpGet("api/doorman/admin/resources")]
-        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, EndpointScope.Collection, EndpointRelation.Parent)]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.Read, EndpointScope.Collection)]
         public async Task<IActionResult> GetByFilter([FromQuery] ResourcesFilter filter)
         {
             var validationResult = new ResourcesFilterValidator().Validate(filter);
@@ -30,30 +30,32 @@ namespace Sero.Doorman.Controller
             if (!validationResult.IsValid)
                 return ValidationError();
 
-            var resourcesTotal = await ResourceStore.CountAsync(filter);
-            var resources = await ResourceStore.FetchAsync(filter);
+            var page = await ResourceStore.Get(filter);
 
-            return Collection(filter, resourcesTotal, resources);
+            if (page.IsEmpty)
+                return NotFound();
+
+            return Collection<Resource>(filter, page.Total, page.Items);
         }
 
         [HttpGet("api/doorman/admin/resources/{code}")]
-        [ElementGetter("resource")]
-        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadOnly, EndpointScope.Element, EndpointRelation.Parent)]
-        public async Task<IActionResult> GetByCode(string code)
+        [Getter("resource")]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.Read, EndpointScope.Element)]
+        public async Task<IActionResult> GetByCode([GetterParameter] string code)
         {
             if (string.IsNullOrEmpty(code))
                 return BadRequest();
 
-            var resource = await ResourceStore.FetchAsync(code);
+            var resource = await ResourceStore.Get(code);
 
             if (resource == null)
                 return NotFound();
 
-            return Element(resource);
+            return Element<Resource>(resource);
         }
 
         [HttpPut("api/doorman/admin/resources/{code}")]
-        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.ReadWrite, EndpointScope.Element, EndpointRelation.Parent)]
+        [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.Write, EndpointScope.Element)]
         public async Task<IActionResult> Edit(
             [FromRoute] string code,
             [FromBody] ResourceUpdateForm form)
@@ -61,7 +63,7 @@ namespace Sero.Doorman.Controller
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentNullException(nameof(code));
 
-            if (!await ResourceStore.IsExistingAsync(code))
+            if (!await ResourceStore.IsUnique(code))
                 return NotFound();
 
             var validationResult = new ResourceUpdateFormValidator().Validate(form);
@@ -70,7 +72,7 @@ namespace Sero.Doorman.Controller
             if (!validationResult.IsValid)
                 return ValidationError();
 
-            Resource resource = await ResourceStore.FetchAsync(code);
+            Resource resource = await ResourceStore.Get(code);
             resource.Category = form.Category;
             resource.Description = form.Description;
 

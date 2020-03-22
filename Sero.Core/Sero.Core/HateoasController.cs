@@ -19,25 +19,22 @@ namespace Sero.Core
         {
             return BadRequest(this.ModelState);
         }
-
-        protected ObjectResult Collection(
+               
+        protected ObjectResult Collection<TElement>(
             CollectionFilter usedFilter,
             int totalElementsExisting,
             IEnumerable<object> elementsToReturn)
+            where TElement : Element
         {
-            var view = new CollectionResult(usedFilter, totalElementsExisting, elementsToReturn);
+            var view = new CollectionView<TElement>(usedFilter, totalElementsExisting, elementsToReturn);
             return new ObjectResult(view);
         }
 
-        protected ObjectResult Element(object elementToReturn)
+        protected ObjectResult Element<TElement>(object elementToReturn)
+            where TElement : Element
         {
-            return new ObjectResult(elementToReturn);
-        }
-
-        protected ObjectResult ChildElement(object parent, object child)
-        {
-            var result = new ChildElementResult(parent, child);
-            return new ObjectResult(result);
+            var view = new ElementView<TElement>(elementToReturn);
+            return new ObjectResult(view);
         }
     }
 }

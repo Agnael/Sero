@@ -18,7 +18,8 @@ namespace Sero.Core
             int totalElementsAvailable,
             Dictionary<string, string> collectionLinks,
             Dictionary<string, HateoasAction> collectionActions,
-            IEnumerable<object> embeddedList)
+            IEnumerable<object> embeddedList,
+            HateoasLabeledLink parentLink = null)
         {
             this.Page = filter.Page;
             this.PageSize = filter.PageSize;
@@ -30,6 +31,7 @@ namespace Sero.Core
             this._links = collectionLinks;
             this._actions = collectionActions;
             this._embedded = embeddedList;
+            this._parent = parentLink;
         }
     }
 }

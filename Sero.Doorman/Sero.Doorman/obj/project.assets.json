@@ -1330,6 +1330,15 @@
           }
         }
       },
+      "shortid/2.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.3/shortid.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/shortid.dll": {}
+        }
+      },
       "System.AppContext/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -4072,6 +4081,20 @@
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.nuspec",
         "runtimes/ubuntu.16.10-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
+      ]
+    },
+    "shortid/2.0.0": {
+      "sha512": "xzsoQPEPIRQ0JGWA4K9r0FMWxHiiYcQUsUMsdba4g2HlSB/2kwX3bSW7WhdlnbWj/kfUBH6zs9/KnspnG2DTxg==",
+      "type": "package",
+      "path": "shortid/2.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net40/shortid.dll",
+        "lib/net45/shortid.dll",
+        "lib/netstandard1.3/shortid.dll",
+        "shortid.2.0.0.nupkg.sha512",
+        "shortid.nuspec"
       ]
     },
     "System.AppContext/4.3.0": {
@@ -7663,6 +7686,7 @@
       "Sero.Core >= 1.0.12",
       "Sero.Loxy >= 1.0.7",
       "System.IdentityModel.Tokens.Jwt >= 5.6.0",
+      "shortid >= 2.0.0",
       "xunit.abstractions >= 2.0.3"
     ]
   },
@@ -7745,6 +7769,10 @@
           "System.IdentityModel.Tokens.Jwt": {
             "target": "Package",
             "version": "[5.6.0, )"
+          },
+          "shortid": {
+            "target": "Package",
+            "version": "[2.0.0, )"
           },
           "xunit.abstractions": {
             "target": "Package",

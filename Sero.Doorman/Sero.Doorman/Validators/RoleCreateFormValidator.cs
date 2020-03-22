@@ -43,7 +43,7 @@ namespace Sero.Doorman.Validators
 
         private async Task<bool> BeUniqueCodeAsync(string roleCode, CancellationToken cancelToken)
         {
-            bool isExisting = await RoleStore.IsExistingAsync(roleCode);
+            bool isExisting = await RoleStore.IsUnique(roleCode);
 
             // If its already existing, then the current one is not unique
             return !isExisting;
@@ -53,7 +53,7 @@ namespace Sero.Doorman.Validators
         {
             foreach (var permission in permissionList)
             {
-                bool isExisting = await ResourceStore.IsExistingAsync(permission.ResourceCode);
+                bool isExisting = await ResourceStore.IsUnique(permission.ResourceCode);
 
                 if (!isExisting)
                     return false;
