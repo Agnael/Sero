@@ -4,10 +4,18 @@ using System.Text;
 
 namespace Sero.Core
 {
-    public class Order
+    //public class Order
+    //{
+    //    public const string Default = "default";
+    //    public const string ASC = "asc";
+    //    public const string DESC = "desc";
+    //}
+
+    public enum Order
     {
-        public const string Default = "default";
-        public const string ASC = "asc";
-        public const string DESC = "desc";
+        UNDEFINED,
+        Default,
+        Asc,
+        Desc
     }
 }

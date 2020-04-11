@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sero.Core
 {
-    public abstract class ElementView
+    public abstract class ElementView : IResultView
     {
         public abstract string ResourceCode { get; }
         public readonly object ViewModel;

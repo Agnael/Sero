@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Routing;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +9,8 @@ namespace Sero.Core
 {
     public class Endpoint
     {
+        public readonly ControllerActionDescriptor Action;
+
         public readonly string DisplayNameWhenLinked;
 
         public readonly string ResourceCode;
@@ -38,31 +43,45 @@ namespace Sero.Core
 
         public readonly string HttpMethod;
 
-        public Endpoint(
-            string displayNameWhenLinked,
-            string resourceCode,
-            string mvcActionName,
-            string endpointName,
-            bool isElementGetter,
-            string getterParameterName,
-            EndpointType type,
-            EndpointScope scope,
-            string urlTemplate,
-            string httpMethod)
+        public Endpoint(ControllerActionDescriptor action)
         {
-            if (isElementGetter && string.IsNullOrEmpty(getterParameterName))
-                throw new Exception("Si el endpoint es un ElementGetter, entonces es obligatorio proporcionar un GetterParameterName NO NULO.");
+            var elementGetterAttr = action.GetElementGetterAttribute();
+            bool isElementGetter = false;
+            string getterParameterName = null;
+            string getterDisplayNameWhenLinked = null;
+
+            if (elementGetterAttr != null)
+            {
+                isElementGetter = true;
+                getterDisplayNameWhenLinked = elementGetterAttr.DisplayNameWhenLinked;
+                getterParameterName = action.GetGetterParameterName();
+
+                if (string.IsNullOrEmpty(getterParameterName))
+                    throw new Exception("Si el endpoint es un ElementGetter, entonces es obligatorio proporcionar un GetterParameterName NO NULO.");
+            }
+
+            string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
+            EndpointType type = EndpointType.Action;
+            HttpMethodAttribute httpMethodAttr = action.GetHttpMethodAttribute();
+            string httpMethod = action.GetHttpMethodValue();
+
+            if (httpMethod == HttpMethods.Get)
+                type = EndpointType.Link;
+
+            var hateoasAttr = action.GetHateoasAttribute();
+
+            this.Action = action;
 
             this.IsElementGetter = isElementGetter;
             this.GetterParameterName = getterParameterName;
 
-            this.DisplayNameWhenLinked = displayNameWhenLinked;
-            this.ResourceCode = resourceCode;
-            this.MvcActionName = mvcActionName;
-            this.EndpointName = endpointName;
+            this.DisplayNameWhenLinked = getterDisplayNameWhenLinked;
+            this.ResourceCode = hateoasAttr.ResourceCode;
+            this.MvcActionName = action.ActionName;
+            this.EndpointName = actionName;
             this.Type = type;
-            this.Scope = scope;
-            this.UrlTemplate = urlTemplate;
+            this.Scope = hateoasAttr.Scope;
+            this.UrlTemplate = httpMethodAttr.Template;
             this.HttpMethod = httpMethod;
         }
     }

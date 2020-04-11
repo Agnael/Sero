@@ -1,92 +1,144 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Linq.Expressions;
+using Xunit.Abstractions;
 
 namespace Sero.Core
 {
-    public abstract class CollectionFilter
+    public abstract class CollectionFilter<TImpl, TSortingEnum> : ICollectionFilter
+        where TImpl : CollectionFilter<TImpl, TSortingEnum>
+        where TSortingEnum : struct, IConvertible, IComparable, IFormattable
     {
-        public string TextSearch { get; set; }
-
         public int Page { get; set; }
         public int PageSize { get; set; }
+        public TSortingEnum SortBy { get; set; }
+        public Order OrderBy { get; set; }
+        public string FreeText { get; set; }
 
-        public string SortBy { get; set; }
-        public string OrderBy { get; set; }
+        private PageCriteria _pageCriteria;
+        private PageSizeCriteria _pageSizeCriteria;
+        private Dictionary<string, IFilterCriteriaBuilder> _additionalCriteriaMap;
+
+        public abstract void XunitDeserialize(IXunitSerializationInfo info);
+        public abstract void XunitSerialize(IXunitSerializationInfo info);
+        protected abstract TImpl CurrentInstance { get; }
+        protected abstract TSortingEnum DefaultSortBy { get; }
+        protected abstract void OnConfiguring();
 
         public CollectionFilter()
         {
-            this.TextSearch = GetDefaultTextSearchValue();
-            this.Page = GetDefaultPageValue();
-            this.PageSize = GetDefaultPageSizeValue();
-            this.SortBy = GetDefaultSortByValue();
-            this.OrderBy = GetDefaultOrderByValue();
+            Init();
         }
 
-        public CollectionFilter(string textSearch, int page, int pageSize, string sortBy, string orderBy)
+        public CollectionFilter(int page, int pageSize, TSortingEnum sorting, Order ordering, string freeText)
         {
-            this.TextSearch = textSearch;
+            Init();
+
             this.Page = page;
             this.PageSize = pageSize;
-            this.SortBy = sortBy;
-            this.OrderBy = orderBy;
+            this.SortBy = sorting;
+            this.OrderBy = ordering;
+            this.FreeText = freeText;
         }
 
-        public CollectionFilter(CollectionFilter filter)
+        private void Init()
         {
-            this.TextSearch = filter.TextSearch;
-            this.Page = filter.Page;
-            this.PageSize = filter.PageSize;
-            this.SortBy = filter.SortBy;
-            this.OrderBy = filter.OrderBy;
+            _additionalCriteriaMap = new Dictionary<string, IFilterCriteriaBuilder>();
+
+            _pageCriteria = new PageCriteria();
+            _pageSizeCriteria = new PageSizeCriteria();
+
+            SetDefaultPage(1);
+            SetDefaultPageSize(10);
+
+            For(x => x.SortBy)
+                .UseCriteria<SortingCriteria<TSortingEnum>>()
+                .UseDefaultValue(DefaultSortBy);
+
+            For(x => x.OrderBy)
+                .UseCriteria<OrderingCriteria>()
+                .UseDefaultValue(Order.Asc);
+
+            For(x => x.FreeText)
+                .UseCriteria<FreeTextCriteria>()
+                .UseDefaultValue(null);
+
+            OnConfiguring();
         }
 
-        public abstract string GetDefaultSortByValue();
-        public abstract CollectionFilter Copy();
-
-        public string GetDefaultTextSearchValue()
+        protected void SetDefaultPage(int defaultPage)
         {
-            return null;
+            Page = defaultPage;
+            _pageCriteria.SetDefaultValues(defaultPage);
         }
 
-        public int GetDefaultPageValue()
+        protected void SetDefaultPageSize(int defaultPageSize)
         {
-            return 1;
+            PageSize = defaultPageSize;
+            _pageSizeCriteria.SetDefaultValues(defaultPageSize);
         }
 
-        public int GetDefaultPageSizeValue()
+        protected EnumerableFilterCriteriaBuilder<TImpl, SelectedPropType> For<SelectedPropType>(Expression<Func<TImpl, IEnumerable<SelectedPropType>>> propertySelector)
         {
-            return 10;
+            string propName = ReflectionUtils.GetPropertyName(propertySelector);
+            var criteriaBuilder = new EnumerableFilterCriteriaBuilder<TImpl, SelectedPropType>(CurrentInstance, propertySelector);
+            _additionalCriteriaMap.Add(propName, criteriaBuilder);
+
+            return criteriaBuilder;
         }
 
-        public string GetDefaultOrderByValue()
+        protected SimpleFilterCriteriaBuilder<TImpl, SelectedPropType> For<SelectedPropType>(Expression<Func<TImpl, SelectedPropType>> propertySelector)
         {
-            return Order.ASC;
+            string propName = ReflectionUtils.GetPropertyName(propertySelector);
+            var criteriaBuilder = new SimpleFilterCriteriaBuilder<TImpl, SelectedPropType>(CurrentInstance, propertySelector);
+            _additionalCriteriaMap.Add(propName, criteriaBuilder);
+
+            return criteriaBuilder;
         }
 
-        public bool IsDefaultTextSearch()
+        public FilteringOverview GetOverview()
         {
-            return this.TextSearch == GetDefaultTextSearchValue();
+            _pageCriteria.SetValues(Page);
+            _pageSizeCriteria.SetValues(PageSize);
+
+            var additionalCriterias = new List<IFilterCriteria>();
+            foreach (var kvp in _additionalCriteriaMap)
+            {
+                IFilterCriteriaBuilder criteriaBuilder = kvp.Value;
+                object filtersPropertyValue = ReflectionUtils.GetPropertyValue(CurrentInstance, kvp.Key);
+
+                IFilterCriteria criteria = criteriaBuilder.Build(filtersPropertyValue);
+                additionalCriterias.Add(criteria);
+            }
+
+            return new FilteringOverview(_pageCriteria, _pageSizeCriteria, additionalCriterias);
         }
 
-        public bool IsDefaultPage()
+        public virtual void Deserialize(IXunitSerializationInfo info)
         {
-            return this.Page == GetDefaultPageValue();
+            this.FreeText = info.GetValue<string>(nameof(FreeText));
+
+            this.OrderBy = info.GetValue<Order>(nameof(OrderBy));
+            this.SortBy = info.GetValue<TSortingEnum>(nameof(SortBy));
+
+            this.Page = info.GetValue<int>(nameof(Page));
+            this.PageSize = info.GetValue<int>(nameof(PageSize));
+
+            this.XunitDeserialize(info);
         }
 
-        public bool IsDefaultPageSize()
+        public virtual void Serialize(IXunitSerializationInfo info)
         {
-            return this.PageSize == GetDefaultPageSizeValue();
-        }
+            info.AddValue(nameof(FreeText), this.FreeText);
 
-        public bool IsDefaultSortBy()
-        {
-            return this.SortBy.ToLower() == GetDefaultSortByValue().ToLower();
-        }
+            info.AddValue(nameof(OrderBy), this.OrderBy);
+            info.AddValue(nameof(SortBy), this.SortBy);
 
-        public bool IsDefaultOrderBy()
-        {
-            return this.OrderBy.ToLower() == GetDefaultOrderByValue().ToLower();
+            info.AddValue(nameof(Page), this.Page);
+            info.AddValue(nameof(PageSize), this.PageSize);
+
+            this.XunitSerialize(info);
         }
     }
 }

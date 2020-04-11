@@ -1,5 +1,4 @@
 ﻿using Sero.Doorman.Controller;
-using Sero.Doorman.Tests.Comparers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,10 +7,10 @@ namespace Sero.Doorman.Tests.Controllers.Resources
 {
     public class ResourcesControllerFixture : IDisposable
     {
-        protected readonly ResourcesController _defaultSut;
+        protected readonly ResourcesController _sut;
 
         protected readonly ResourcesControllerBuilder _sutBuilder;
-        protected readonly ResourceStoreBuilder _resourceStoreBuilder;
+        protected readonly InMemoryResourceStore _resourceStore;
 
         protected readonly ResourceComparer _resourceComparer;
 
@@ -19,12 +18,13 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         {
             _sutBuilder = new ResourcesControllerBuilder();
             _resourceComparer = new ResourceComparer();
-            _resourceStoreBuilder = new ResourceStoreBuilder()
-                .WithDefaultResources();
 
-            _defaultSut = _sutBuilder
-                .WithResourceStore(_resourceStoreBuilder.Build())
+            _resourceStore = 
+                new ResourceStoreBuilder()
+                .WithDefaultResources()
                 .Build();
+
+            _sut = new ResourcesController(_resourceStore);
         }
 
         public void Dispose()

@@ -19,7 +19,6 @@ namespace Sero.Core
         {
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.TryAddScoped<IRequestInfoService, RequestInfoService>();
-            services.TryAddSingleton<HateoasService>();
         }
     }
 }

@@ -1,19 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Http;
 using Sero.Core.Middleware;
 using Sero.Doorman.Events;
 using Sero.Loxy.Abstractions;
-using Sero.Loxy.Events;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sero.Doorman.Middleware
@@ -31,6 +20,10 @@ namespace Sero.Doorman.Middleware
 
         protected override async Task OnBefore(HttpContext context)
         {
+            // TODO: OLEG YA HICISTE EL AuthorizationContext PERO FALTA LLENARLO CON LOS PERMISOS ACTUALES!! HACELO ACA, BUSCÁ EN EL STORE
+            // LOS ROLES DEL CredentialId QUE VENGA EN EL TOKEN
+
+
             _loxy = this.GetService<ILoxy>(context);
             //var doormanOptionsMonitor = this.GetService<IOptionsMonitor<DoormanOptions>>(context);
             //var credentialStore = this.GetService<ICredentialStore>(context);

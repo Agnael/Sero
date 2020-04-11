@@ -14,7 +14,7 @@ namespace Sero.Doorman.Controller
 {
     [ApiController]
     //[Route("[controller]")]
-    public class RolesController : HateoasController
+    public class RolesController : BaseHateoasController
     {
         public readonly IRoleStore RoleStore;
         public readonly IResourceStore ResourceStore;
@@ -35,7 +35,7 @@ namespace Sero.Doorman.Controller
 
         [HttpGet("api/doorman/admin/roles")]
         [DoormanEndpoint(Constants.ResourceCodes.Roles, PermissionLevel.Read, EndpointScope.Collection)]
-        public async Task<IActionResult> GetByFilter([FromQuery] RolesFilter filter)
+        public async Task<IActionResult> GetByFilter([FromQuery] RoleFilter filter)
         {
             var validationResult = new RolesFilterValidator().Validate(filter);
             validationResult.AddToModelState(this.ModelState, null);
@@ -79,8 +79,8 @@ namespace Sero.Doorman.Controller
             Role role = new Role(form.Code, form.Name, form.Description, form.Permissions);
             await RoleStore.Create(role);
 
-            string url = Url.Action(nameof(GetByCode), new { role.Code });
-            return Created(url, role);
+            var view = Element<Role>(role);
+            return CreatedAtAction(nameof(GetByCode), new { role.Code }, view);
         }
 
         [HttpPut("api/doorman/admin/roles/{code}")]
@@ -92,7 +92,7 @@ namespace Sero.Doorman.Controller
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentNullException(nameof(code));
 
-            if (!await RoleStore.IsUnique(code))
+            if (!await RoleStore.IsExisting(code))
                 return NotFound();
 
             var validationResult = new RoleUpdateFormValidator(RoleStore, ResourceStore).Validate(form);
@@ -108,8 +108,8 @@ namespace Sero.Doorman.Controller
 
             await RoleStore.Update(role);
 
-            string getterUrl = Url.Action(nameof(GetByCode), new { role.Code });
-            return Accepted(getterUrl, role);
+            var view = Element<Role>(role);
+            return AcceptedAtAction(nameof(GetByCode), new { role.Code }, view);
         }
     }
 }

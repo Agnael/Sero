@@ -7,13 +7,13 @@ namespace Sero.Core
 {
     public class UrlBuilder<TCollectionFilter>
     {
-        private Dictionary<string, string> _params;
+        private List<KeyValuePair<string, string>> _params;
         private string _urlBase;
 
         public UrlBuilder(string urlBase)
         {
             _urlBase = urlBase;
-            _params = new Dictionary<string, string>();
+            _params = new List<KeyValuePair<string, string>>();
         }
 
         // Sería más performante usar "nameof(obj.property)" porque se resuelve en compile time pero
@@ -21,7 +21,14 @@ namespace Sero.Core
         public void AddParam<U>(Expression<Func<TCollectionFilter, U>> keyNameSelector, object value)
         {
             string key = ReflectionUtils.GetPropertyName(keyNameSelector);
-            _params.Add(key.ToLower(), value.ToString());
+            _params.Add(new KeyValuePair<string, string>(key.ToLower(), value.ToString()));
+        }
+
+        // Sería más performante usar "nameof(obj.property)" porque se resuelve en compile time pero
+        // prefiero segmentar el codigo por ahora porque es un asco el choclazo que se arma
+        public void AddParam(string name, string value)
+        {
+            _params.Add(new KeyValuePair<string, string>(name.ToLower(), value));
         }
 
         public string Build()

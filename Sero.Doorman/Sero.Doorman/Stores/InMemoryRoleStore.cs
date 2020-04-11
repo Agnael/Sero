@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Sero.Core;
 using Sero.Doorman.Controller;
 
-namespace Sero.Doorman.Stores
+namespace Sero.Doorman
 {
     public class InMemoryRoleStore : IRoleStore
     {
@@ -14,7 +14,7 @@ namespace Sero.Doorman.Stores
 
         public InMemoryRoleStore(IList<Role> roles)
         {
-            this.Roles = roles;
+            this.Roles = new List<Role>(roles);
         }
 
         public async Task Create(Role role)
@@ -28,28 +28,28 @@ namespace Sero.Doorman.Stores
             Roles.Remove(foundRole);
         }
 
-        public async Task<Page<Role>> Get(RolesFilter filter)
+        public async Task<Page<Role>> Get(RoleFilter filter)
         {
             Func<Role, string> orderByPredicate = null;
 
-            if (filter.SortBy == nameof(Role.Code))
+            if (filter.SortBy == RoleSorting.Code)
                 orderByPredicate = x => x.Code;
-            else if (filter.SortBy.ToLower() == nameof(Role.Description).ToLower())
+            else if (filter.SortBy == RoleSorting.Description)
                 orderByPredicate = x => x.Description;
-            else if (filter.SortBy.ToLower() == nameof(Role.DisplayName).ToLower())
+            else if (filter.SortBy == RoleSorting.DisplayName)
                 orderByPredicate = x => x.DisplayName;
 
             IEnumerable<Role> query = Roles;
 
-            if (filter.OrderBy.ToLower() == Order.DESC.ToLower())
+            if (filter.OrderBy == Order.Desc)
                 query = query.OrderByDescending(orderByPredicate);
             else
                 query = query.OrderBy(orderByPredicate);
 
-            if (!string.IsNullOrEmpty(filter.TextSearch))
-                query = query.Where(x => x.Code.ToLower().Contains(filter.TextSearch.ToLower())
-                                        || x.Description.ToLower().Contains(filter.TextSearch.ToLower())
-                                        || x.DisplayName.ToLower().Contains(filter.TextSearch.ToLower()));
+            if (!string.IsNullOrEmpty(filter.FreeText))
+                query = query.Where(x => x.Code.ToLower().Contains(filter.FreeText.ToLower())
+                                        || x.Description.ToLower().Contains(filter.FreeText.ToLower())
+                                        || x.DisplayName.ToLower().Contains(filter.FreeText.ToLower()));
 
             int count = query.Count();
 
@@ -67,9 +67,9 @@ namespace Sero.Doorman.Stores
             return result;
         }
 
-        public async Task<bool> IsUnique(string roleCode)
+        public async Task<bool> IsExisting(string roleCode)
         {
-            var result = !Roles.Any(x => x.Code == roleCode);
+            var result = Roles.Any(x => x.Code == roleCode);
             return result;
         }
 

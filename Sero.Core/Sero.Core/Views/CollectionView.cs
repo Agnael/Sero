@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Sero.Core
 {
-    public abstract class CollectionView
+    public abstract class CollectionView : IResultView
     {
         public abstract string ResourceCode { get; }
-        public readonly CollectionFilter UsedFilter;
+        public readonly FilteringOverview UsedFilter;
         public readonly int TotalExisting;
         public readonly IEnumerable<object> ViewModels;
 
         public CollectionView(
-            CollectionFilter usedFilter,
+            FilteringOverview usedFilter,
             int totalExisting,
             IEnumerable<object> viewModels)
         {
@@ -36,7 +36,7 @@ namespace Sero.Core
         }
 
         public CollectionView(
-            CollectionFilter usedFilter,
+            FilteringOverview usedFilter,
             int totalExisting,
             IEnumerable<object> viewModels)
             : base(usedFilter, totalExisting, viewModels)

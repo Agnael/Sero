@@ -1,5 +1,4 @@
 ﻿using Sero.Doorman.Controller;
-using Sero.Doorman.Tests.Comparers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,11 +7,11 @@ namespace Sero.Doorman.Tests.Controllers.Roles
 {
     public class RolesControllerFixture : IDisposable
     {
-        protected readonly RolesController _defaultSut;
+        protected readonly RolesController _sut;
 
         protected readonly RolesControllerBuilder _sutBuilder;
-        protected readonly RoleStoreBuilder _roleStoreBuilder;
-        protected readonly ResourceStoreBuilder _resourceStoreBuilder;
+        protected readonly InMemoryRoleStore _roleStore;
+        protected readonly InMemoryResourceStore _resourceStore;
 
         protected readonly PermissionComparer _permissionComparer;
         protected readonly RoleComparer _roleComparer;
@@ -21,13 +20,17 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         {
             _sutBuilder = new RolesControllerBuilder();
 
-            _roleStoreBuilder = new RoleStoreBuilder().WithDefaultRoles();
-            _resourceStoreBuilder = new ResourceStoreBuilder().WithDefaultResources();
-
-            _defaultSut = _sutBuilder
-                .WithRoleStore(_roleStoreBuilder.Build())
-                .WithResourceStore(_resourceStoreBuilder.Build())
+            _resourceStore = 
+                new ResourceStoreBuilder()
+                .WithDefaultResources()
                 .Build();
+
+            _roleStore = 
+                new RoleStoreBuilder(_resourceStore)
+                .WithDefaultRoles()
+                .Build();
+
+            _sut = new RolesController(_roleStore, _resourceStore);
 
             _permissionComparer = new PermissionComparer();
             _roleComparer = new RoleComparer(_permissionComparer);

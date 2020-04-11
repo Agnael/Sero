@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Sero.Core;
 
 namespace Sero.Doorman.Tests.Controllers.Resources
 {
@@ -17,13 +18,13 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         public async Task Success(string resourceCode)
         {
             // Arrange
-            Resource expected = _resourceStoreBuilder
-                .ResourceList
+            Resource expected = _resourceStore
+                .Resources
                 .FirstOrDefault(x => x.Code == resourceCode);
 
             // Act
-            ObjectResult result = await _defaultSut.GetByCode(resourceCode) as ObjectResult;
-            Resource actual = result.Value as Resource;
+            IActionResult result = await _sut.GetByCode(resourceCode);
+            Resource actual = result.AsElementView<Resource, Resource>();
 
             // Assert
             Assert.Equal(expected, actual, _resourceComparer);
@@ -33,14 +34,14 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         public async Task UnexistingCode__NotFound()
         {
             // Act
-            var result = await _defaultSut.GetByCode("randomUnexistingCode");
+            var result = await _sut.GetByCode("randomUnexistingCode");
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
         public async Task NullCode__BadRequest()
         {
-            var result = await _defaultSut.GetByCode(null);
+            var result = await _sut.GetByCode(null);
             Assert.IsType<BadRequestResult>(result);
         }
     }

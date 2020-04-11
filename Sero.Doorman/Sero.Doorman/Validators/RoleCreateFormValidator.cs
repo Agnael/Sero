@@ -24,7 +24,7 @@ namespace Sero.Doorman.Validators
             RuleFor(x => x.Code)
                 .NotEmpty()
                 .IsCode()
-                .MustAsync(BeUniqueCodeAsync)
+                .MustAsync(NotBeExistingCodeAsync)
                 .WithMessage("Already existing");
 
             RuleFor(x => x.Name)
@@ -41,11 +41,9 @@ namespace Sero.Doorman.Validators
                 .WithMessage("Unexisting resource code detected.");
         }
 
-        private async Task<bool> BeUniqueCodeAsync(string roleCode, CancellationToken cancelToken)
+        private async Task<bool> NotBeExistingCodeAsync(string roleCode, CancellationToken cancelToken)
         {
-            bool isExisting = await RoleStore.IsUnique(roleCode);
-
-            // If its already existing, then the current one is not unique
+            bool isExisting = await RoleStore.IsExisting(roleCode);
             return !isExisting;
         }
 
@@ -53,7 +51,7 @@ namespace Sero.Doorman.Validators
         {
             foreach (var permission in permissionList)
             {
-                bool isExisting = await ResourceStore.IsUnique(permission.ResourceCode);
+                bool isExisting = await ResourceStore.IsExisting(permission.ResourceCode);
 
                 if (!isExisting)
                     return false;

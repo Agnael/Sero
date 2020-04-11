@@ -2572,7 +2572,8 @@
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.AspNetCore.Mvc": "2.2.0",
-          "Microsoft.AspNetCore.Mvc.Abstractions": "2.2.0"
+          "Microsoft.AspNetCore.Mvc.Abstractions": "2.2.0",
+          "xunit.abstractions": "2.0.3"
         },
         "compile": {
           "bin/placeholder/Sero.Core.dll": {}
@@ -3551,7 +3552,6 @@
       "path": "microsoft.extensions.logging/2.0.0",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
         "lib/netstandard2.0/Microsoft.Extensions.Logging.dll",
         "lib/netstandard2.0/Microsoft.Extensions.Logging.xml",
         "microsoft.extensions.logging.2.0.0.nupkg.sha512",
@@ -4213,7 +4213,6 @@
       "path": "serilog.sinks.console/3.1.1",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
         "lib/net45/Serilog.Sinks.Console.dll",
         "lib/net45/Serilog.Sinks.Console.xml",
         "lib/netcoreapp1.1/Serilog.Sinks.Console.dll",
@@ -4230,7 +4229,6 @@
       "path": "serilog.sinks.debug/1.0.1",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
         "lib/net45/Serilog.Sinks.Debug.dll",
         "lib/net45/Serilog.Sinks.Debug.xml",
         "lib/net46/Serilog.Sinks.Debug.dll",

@@ -60,6 +60,12 @@ namespace Sero.Core
                     && hateoasAttr.Scope == scope;
         }
 
+        public static TAttr GetAttribute<TAttr>(this ActionDescriptor action)
+        {
+            TAttr attr = action.EndpointMetadata.OfType<TAttr>().First();
+            return attr;
+        }
+
         public static bool IsActionFor(this ActionDescriptor action, string resourceCode, EndpointScope scope)
         {
             bool isHttpGet = action.IsHttpGet();

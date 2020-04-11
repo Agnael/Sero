@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Sero.Core;
 
 namespace Sero.Doorman.Tests.Controllers.Roles
 {
@@ -14,13 +15,13 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         public async Task Success(string roleCode)
         {
             // Arrange
-            Role expected = _roleStoreBuilder
-                .RoleList
+            Role expected = _roleStore
+                .Roles
                 .FirstOrDefault(x => x.Code == roleCode);
 
             // Act
-            ObjectResult result = await _defaultSut.GetByCode(roleCode) as ObjectResult;
-            Role actual = result.Value as Role;
+            var actionResult = await _sut.GetByCode(roleCode);
+            Role actual = actionResult.AsElementView<Role, Role>();
 
             // Assert
             Assert.Equal(expected, actual, _roleComparer);
@@ -30,7 +31,7 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         public async Task UnexistingCode__404NotFound()
         {
             // Act
-            IActionResult result = await _defaultSut.GetByCode("randomUnexistingCode");
+            IActionResult result = await _sut.GetByCode("randomUnexistingCode");
             Assert.IsType<NotFoundResult>(result);
         }
 
@@ -39,7 +40,7 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         {
             await Assert.ThrowsAsync<ArgumentNullException>(async () => 
             {
-                await _defaultSut.GetByCode(null);
+                await _sut.GetByCode(null);
             });
         }
     }

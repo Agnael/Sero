@@ -8,7 +8,7 @@ namespace Sero.Doorman
     {
         public const string LOXY_CATEGORY = "Doorman";
         public const string DM_GUEST_ROLE_NAME = "DM_GUEST";
-
+        
         public class Validation
         {
             public const int Code_Length_Min = 1;
@@ -33,14 +33,19 @@ namespace Sero.Doorman
             public const string Resources = "dm_resources";
             public const string Roles = "dm_roles";
             public const string Credentials = "dm_credentials";
-            public const string CredentialRoles = "dm_credential_roles";
+            public const string Sessions = "dm_sessions";
+        }
+
+        public class CredentialIds
+        {
+            public const string Admin = "admin";
         }
 
         public class RoleCodes
         {
-            public const string Guest = "dm_guest";
-            public const string User = "dm_user";
             public const string Admin = "dm_admin";
+            public const string User = "dm_user";
+            public const string Guest = "dm_guest";
         }
     }
 }

@@ -9,17 +9,10 @@ using System.Threading.Tasks;
 
 namespace Sero.Doorman.Validators
 {
-    public class CredentialsFilterValidator : AbstractValidator<CredentialsFilter>
+    public class CredentialsFilterValidator : AbstractValidator<CredentialFilter>
     {
         public CredentialsFilterValidator()
         {
-            RuleFor(x => x.SortBy)
-                .IsCSharpPropertyName()
-                .IsPropertyNameOf(typeof(Credential));
-
-            RuleFor(x => x.OrderBy)
-                .IsOrderingDescriptor();
-
             RuleFor(x => x.Page)
                 .GreaterThanOrEqualTo(1);
 

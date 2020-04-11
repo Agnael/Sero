@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Sero.Core;
 using Sero.Doorman.Controller;
 
-namespace Sero.Doorman.Stores
+namespace Sero.Doorman
 {
     public class InMemoryCredentialStore : ICredentialStore
     {
@@ -14,7 +14,7 @@ namespace Sero.Doorman.Stores
 
         public InMemoryCredentialStore(IList<Credential> credentials)
         {
-            this.Credentials = credentials;
+            this.Credentials = new List<Credential>(credentials);
         }
 
         public async Task<Credential> GetByEmail(string email)
@@ -23,37 +23,37 @@ namespace Sero.Doorman.Stores
             return result;
         }
 
-        public async Task<Credential> Get(string username)
+        public async Task<Credential> Get(string CredentialId)
         {
-            var result = Credentials.FirstOrDefault(x => x.Username == username.ToLower());
+            var result = Credentials.FirstOrDefault(x => x.CredentialId == CredentialId.ToLower());
             return result;
         }
         
-        public async Task<Page<Credential>> Get(CredentialsFilter filter)
+        public async Task<Page<Credential>> Get(CredentialFilter filter)
         {
             Func<Credential, object> orderByPredicate = null;
 
-            if (filter.SortBy.ToLower() == nameof(Credential.Username))
-                orderByPredicate = x => x.Username;
-            else if (filter.SortBy.ToLower() == nameof(Credential.BirthDate).ToLower())
+            if (filter.SortBy == CredentialSorting.CredentialId)
+                orderByPredicate = x => x.CredentialId;
+            else if (filter.SortBy == CredentialSorting.BirthDate)
                 orderByPredicate = x => x.BirthDate;
-            else if (filter.SortBy.ToLower() == nameof(Credential.CreationDate).ToLower())
+            else if (filter.SortBy == CredentialSorting.CreationDate)
                 orderByPredicate = x => x.CreationDate;
-            else if (filter.SortBy.ToLower() == nameof(Credential.Email).ToLower())
+            else if (filter.SortBy == CredentialSorting.Email)
                 orderByPredicate = x => x.Email;
 
             IEnumerable<Credential> query = Credentials;
 
-            if (filter.OrderBy.ToLower() == Order.DESC.ToLower())
+            if (filter.OrderBy == Order.Desc)
                 query = query.OrderByDescending(orderByPredicate);
             else
                 query = query.OrderBy(orderByPredicate);
 
-            if (!string.IsNullOrEmpty(filter.TextSearch))
+            if (!string.IsNullOrEmpty(filter.FreeText))
             {
-                string searched = filter.TextSearch.ToLower();
+                string searched = filter.FreeText.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searched)
-                                        || x.Username.Contains(searched)
+                                        || x.CredentialId.Contains(searched)
                                         || x.DisplayName.Contains(searched)
                                         || x.Roles.Any(y => y.Code.ToLower().Contains(searched)
                                                             || y.DisplayName.ToLower().Contains(searched)));
@@ -61,7 +61,7 @@ namespace Sero.Doorman.Stores
 
             if(!string.IsNullOrEmpty(filter.Email))
             {
-                string searched = filter.TextSearch.ToLower();
+                string searched = filter.FreeText.ToLower();
                 query = query.Where(x => x.Email.ToLower().Contains(searched));
             }
 
@@ -77,6 +77,9 @@ namespace Sero.Doorman.Stores
             if (filter.BirthDateMax.HasValue)
                 query = query.Where(x => x.BirthDate <= filter.BirthDateMax);
 
+            if(filter.RoleCodes.Count() > 0)
+                query = query.Where(x => filter.RoleCodes.All(y => x.Roles.Any(z => z.Code == y)));
+
             var count = query.Count();
             
             var list = query
@@ -87,26 +90,26 @@ namespace Sero.Doorman.Stores
             return new Page<Credential>(count, list);
         }
 
-        public async Task<bool> IsUniqueEmail(string email)
+        public async Task<bool> IsExistingByEmail(string email)
         {
-            var result = !Credentials.Any(x => x.Email == email);
+            var result = Credentials.Any(x => x.Email == email);
             return result;
         }
 
-        public async Task<bool> IsUniqueUsername(string username)
+        public async Task<bool> IsExistingByCredentialId(string CredentialId)
         {
-            var result = !Credentials.Any(x => x.Username == username);
+            var result = Credentials.Any(x => x.CredentialId == CredentialId);
             return result;
         }
 
-        public async Task Save(Credential user)
+        public async Task Create(Credential user)
         {
             Credentials.Add(user);
         }
 
         public async Task Update(Credential user)
         {
-            var found = Credentials.FirstOrDefault(x => x.Username.Equals(user.Username));
+            var found = Credentials.FirstOrDefault(x => x.CredentialId.Equals(user.CredentialId));
             found.DisplayName = user.DisplayName;
             found.Roles = user.Roles;
             found.PasswordSalt = user.PasswordSalt;
@@ -115,9 +118,9 @@ namespace Sero.Doorman.Stores
             found.BirthDate = user.BirthDate;
         }
 
-        public async Task<Page<Role>> GetRoles(string username, RolesFilter filter)
+        public async Task<Page<Role>> GetRoles(string CredentialId, RoleFilter filter)
         {
-            var credential = await this.Get(username);
+            var credential = await this.Get(CredentialId);
 
             if (credential == null)
                 return new Page<Role>();
@@ -127,6 +130,12 @@ namespace Sero.Doorman.Stores
             var roles = await roleStore.Get(filter);
             return roles;
 
+        }
+
+        public async Task<bool> IsExistingByRoleCode(string roleCode)
+        {
+            var result = Credentials.Any(x => x.Roles.Any(y => y.Code == roleCode));
+            return result;
         }
     }
 }

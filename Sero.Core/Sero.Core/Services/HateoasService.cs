@@ -1,25 +1,18 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Abstractions;
+﻿using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
 
 namespace Sero.Core
 {
     public class HateoasService
     {
-        private readonly IEnumerable<Endpoint> _endpoints;
+        public readonly IEnumerable<Endpoint> Endpoints;
 
-        public HateoasService(IActionDescriptorCollectionProvider actionCollectionProvider)
+        public HateoasService(
+            IActionDescriptorCollectionProvider actionCollectionProvider)
         {
             if (actionCollectionProvider == null 
                 || actionCollectionProvider.ActionDescriptors == null 
@@ -34,51 +27,18 @@ namespace Sero.Core
             var endpoints = new List<Endpoint>();
             foreach (ControllerActionDescriptor action in actions)
             {
-                var elementGetterAttr = action.GetElementGetterAttribute();
-                bool isElementGetter = false;
-                string getterParameterName = null;
-                string getterDisplayNameWhenLinked = null;
-
-                if (elementGetterAttr != null)
-                {
-                    isElementGetter = true;
-                    getterDisplayNameWhenLinked = elementGetterAttr.DisplayNameWhenLinked;
-                    getterParameterName = action.GetGetterParameterName();
-                }                               
-
-                string actionName = CasingUtil.UpperCamelCaseToLowerUnderscore(action.ActionName);
-                EndpointType type = EndpointType.Action;
-                HttpMethodAttribute httpMethodAttr = action.GetHttpMethodAttribute();
-                string httpMethod = action.GetHttpMethodValue();
-
-                if (httpMethod == HttpMethods.Get)
-                    type = EndpointType.Link;
-
-                var hateoasAttr = action.GetHateoasAttribute();
-
-                Endpoint newEndpoint = new Endpoint(
-                    getterDisplayNameWhenLinked,
-                    hateoasAttr.ResourceCode,
-                    action.ActionName,
-                    actionName,
-                    isElementGetter,
-                    getterParameterName,
-                    type,
-                    hateoasAttr.Scope,
-                    httpMethodAttr.Template,
-                    httpMethod);
-
+                Endpoint newEndpoint = new Endpoint(action);
                 endpoints.Add(newEndpoint);
             }
 
-            _endpoints = endpoints;
+            this.Endpoints = endpoints;
         }
 
         public Endpoint GetEndpointByAction(ControllerActionDescriptor action)
         {
             var hateoasAttr = action.GetHateoasAttribute();
 
-            Endpoint found = _endpoints
+            Endpoint found = Endpoints
                 .FirstOrDefault(x => 
                     x.ResourceCode == hateoasAttr.ResourceCode
                     && x.Scope == hateoasAttr.Scope
@@ -87,25 +47,30 @@ namespace Sero.Core
             return found;
         }
 
-        public IEnumerable<Endpoint> GetLinks(string resourceCode, EndpointScope scope)
+        private IEnumerable<Endpoint> GetEndpoints(string resourceCode, EndpointScope scope, EndpointType type, Func<Endpoint, bool> isAuthorizedFunc)
         {
             var links =
-                _endpoints
-                .Where(x => x.Type == EndpointType.Link
+                Endpoints
+                .Where(x => x.Type == type
                     && x.Scope == scope
-                    && x.ResourceCode == resourceCode);
+                    && x.ResourceCode == resourceCode
+                    && isAuthorizedFunc(x));
 
             return links;
         }
 
-        public IEnumerable<Endpoint> GetActions(string resourceCode, EndpointScope scope)
+        public IEnumerable<Endpoint> GetLinks(string resourceCode, EndpointScope scope, Func<Endpoint, bool> isAuthorizedFunc)
         {
-            var actions =
-                _endpoints
-                .Where(x => x.Type == EndpointType.Action
-                    && x.Scope == scope
-                    && x.ResourceCode == resourceCode);
+            var links = this.GetEndpoints(resourceCode, scope, EndpointType.Link, isAuthorizedFunc);
+            return links;
+        }
 
+        public IEnumerable<Endpoint> GetActions(
+            string resourceCode,
+            EndpointScope scope,
+            Func<Endpoint, bool> isAuthorizedFunc)
+        {
+            var actions = this.GetEndpoints(resourceCode, scope, EndpointType.Action, isAuthorizedFunc);
             return actions;
         }
 
@@ -114,7 +79,7 @@ namespace Sero.Core
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException();
 
             Endpoint found =
-                _endpoints
+                Endpoints
                 .FirstOrDefault(x =>
                     x.ResourceCode == resourceCode
                     && x.IsElementGetter);
@@ -127,7 +92,7 @@ namespace Sero.Core
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException();
             
             Endpoint getterEndpoint = 
-                _endpoints
+                Endpoints
                 .FirstOrDefault(x => x.IsElementGetter
                     && x.ResourceCode == resourceCode);
 

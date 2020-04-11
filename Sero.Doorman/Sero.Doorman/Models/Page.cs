@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Sero.Doorman
@@ -12,7 +13,7 @@ namespace Sero.Doorman
         public readonly int Total;
         public readonly IEnumerable<T> Items;
 
-        public bool IsEmpty => Total == 0;
+        public bool IsEmpty => Items.Count() == 0;
 
         public Page()
         {

@@ -39,7 +39,7 @@ namespace Sero.Doorman.Validators
         {
             foreach (var permission in permissionList)
             {
-                bool isExisting = await ResourceStore.IsUnique(permission.ResourceCode);
+                bool isExisting = await ResourceStore.IsExisting(permission.ResourceCode);
 
                 if (!isExisting)
                     return false;

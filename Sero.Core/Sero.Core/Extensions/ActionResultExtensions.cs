@@ -26,6 +26,56 @@ namespace Sero.Core
             return result as AcceptedResult;
         }
 
+        public static TViewModel AsElementView<TApiElement, TViewModel>(this IActionResult result)
+            where TApiElement : Element
+            where TViewModel : class, new()
+        {
+            ObjectResult objResult = (ObjectResult)result;
+            object value = objResult.Value;
+
+            if(objResult is CreatedAtActionResult
+                || objResult is AcceptedAtActionResult)
+            {
+                value = (value as ObjectResult).Value;
+            }
+
+            if (!(value is ElementView<TApiElement>))
+                throw new InvalidCastException("This IActionResult is NOT an ElementView generic wrapper for the " + typeof(TApiElement).Name + " element type.");
+
+            var view = value as ElementView<TApiElement>;
+            var viewModel = view.ViewModel as TViewModel;
+            return viewModel;
+        }
+
+        public static IEnumerable<TViewModel> AsCollectionView<TApiElement, TViewModel>(this IActionResult result)
+            where TApiElement : Element
+            where TViewModel : class, new()
+        {
+            ObjectResult objResult = (ObjectResult)result;
+            object value = objResult.Value;
+
+            if (objResult is CreatedAtActionResult
+                || objResult is AcceptedAtActionResult)
+            {
+                value = (value as ObjectResult).Value;
+            }
+
+            if (!(value is CollectionView<TApiElement>))
+                throw new InvalidCastException("This IActionResult is NOT a CollectionView generic wrapper for the " + typeof(TApiElement).Name + " element type.");
+
+            var view = value as CollectionView<TApiElement>;
+            var viewModels = view.ViewModels as IEnumerable<TViewModel>;
+            return viewModels;
+        }
+
+        public static AcceptedAtActionResult AsAcceptedAtActionResult(this IActionResult result)
+        {
+            if (!(result is AcceptedAtActionResult))
+                throw new InvalidCastException("This IActionResult is not an AcceptedAtActionResult instance.");
+
+            return result as AcceptedAtActionResult;
+        }
+
         public static CreatedResult AsCreated(this IActionResult result)
         {
             if (!(result is CreatedResult))
@@ -73,15 +123,15 @@ namespace Sero.Core
 
             ObjectResult objectResult = result as ObjectResult;
 
-            if (!(objectResult.Value is CollectionResult))
+            if (!(objectResult.Value is CollectionView))
                 throw new InvalidCastException("This ObjectResult's value is not a Sero's CollectionResult instance.");
 
-            CollectionResult collectionResult = objectResult.Value as CollectionResult;
+            CollectionView collectionResult = objectResult.Value as CollectionView;
 
             if (!(objectResult.Value is IEnumerable<T>))
                 throw new InvalidCastException("This ObjectResult's value is not an IEnumerable of the provided T type.");
 
-            IEnumerable<T> collection = collectionResult.ElementsToReturn as IEnumerable<T>;
+            IEnumerable<T> collection = collectionResult.ViewModels as IEnumerable<T>;
             return collection;
         }
     }

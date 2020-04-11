@@ -8,12 +8,12 @@ namespace Sero.Doorman
 {
     public interface IRoleStore
     {
-        Task<Page<Role>> Get(RolesFilter filter);
+        Task<Page<Role>> Get(RoleFilter filter);
         Task<Role> Get(string roleCode);
 
         Task Update(Role role);
         Task Create(Role role);
         Task Delete(string roleCode);
-        Task<bool> IsUnique(string roleCode);
+        Task<bool> IsExisting(string roleCode);
     }
 }

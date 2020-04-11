@@ -17,6 +17,11 @@ namespace Sero.Core
             return Expression.Lambda<Func<TIn, string>>(body, param).Compile();
         }
 
+        public static object GetPropertyValue(object src, string propName)
+        {
+            return src.GetType().GetProperty(propName).GetValue(src, null);
+        }
+
         public static string GetPropertyName<T, U>(Expression<Func<T, U>> propertyLambda)
         {
             var member = propertyLambda.Body as MemberExpression;

@@ -1,25 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sero.Doorman;
-using Sero.Doorman.Stores;
-using Sero.Doorman.Middleware;
 using Serilog;
 using Sero.Loxy;
 using Newtonsoft.Json;
 using Serilog.Filters;
-using WebTest.Models;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Sero.Core;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace WebTest
 {
@@ -38,6 +32,8 @@ namespace WebTest
 
             services.AddLogging(x => x.AddSerilog());
 
+            services.TryAddSingleton<HateoasService>();
+
             services.AddLoxy()
                 .Sinks.AddJsonSink()
                     .WithMinimumLevel(LogLevel.Debug)
@@ -53,6 +49,12 @@ namespace WebTest
             services.AddSingleton<IResourceStore>(_ => new InMemoryResourceStore(GetTestResources()));
             services.AddSingleton<IRoleStore>(_ => new InMemoryRoleStore(GetTestRoles()));
             services.AddSingleton<ICredentialStore>(_ => new InMemoryCredentialStore(GetTestCredentials()));
+            services.AddSingleton<ISessionStore>(_ => new InMemorySessionStore());
+            services.AddSingleton<ILoginAttemptStore>(_ => new InMemoryLoginAttemptStore());
+            services.AddSingleton<ICredentialPenaltyStore>(_ => new InMemoryCredentialPenaltyStore());
+
+            services.AddTransient<ILoginAttemptLimitingStrategy, DefaultLoginAttemptLimitingStrategy>();
+
             services.AddDoorman();
 
             services.AddControllers(conf => {
@@ -61,10 +63,7 @@ namespace WebTest
             });
         }
 
-        public void Configure(
-            IApplicationBuilder app, 
-            IWebHostEnvironment env, 
-            IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -87,8 +86,6 @@ namespace WebTest
                 //        new { controller = "Roles", action = "Test" })
                 //    .WithMetadata(new HttpGetAttribute());
             });
-
-            Doorman.HealthCheck(actionDescriptorCollectionProvider);
         }
 
         public void ConfigureSerilog()
@@ -111,7 +108,7 @@ namespace WebTest
             
             Credential cred1 = new Credential();
             //cred1.CredentialId = new Guid("60530e59-a921-4ba5-89bb-6689446c4468");
-            cred1.Username = "agnael";
+            cred1.CredentialId = "agnael";
             cred1.DisplayName = "Agnael";
             cred1.CreationDate = new DateTime(2015, 5, 4);
             cred1.Email = "oleg.kuzmych@nitra.com";
@@ -127,8 +124,8 @@ namespace WebTest
             };
 
             Credential cred2 = new Credential();
-            //cred2.Username = new Guid("ac28ae7e-b85c-41e2-9813-31f9f9b12384");
-            cred2.Username = "simbad";
+            //cred2.CredentialId = new Guid("ac28ae7e-b85c-41e2-9813-31f9f9b12384");
+            cred2.CredentialId = "simbad";
             cred2.DisplayName = "Simbad";
             cred2.CreationDate = new DateTime(2015, 5, 4);
             cred2.Email = "random.pibito@gmail.com";

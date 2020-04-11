@@ -18,14 +18,14 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         public async Task Success(string resourceCode, string newCategory, string newDescription)
         {
             // Arrange
-            Resource expected = _resourceStoreBuilder.ResourceList.FirstOrDefault(x => x.Code == resourceCode);
+            Resource expected = _resourceStore.Resources.FirstOrDefault(x => x.Code == resourceCode);
             expected.Category = newCategory;
             expected.Description = newDescription;
 
             // Act
             ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
 
-            var result = _defaultSut.Edit(resourceCode, form).Result.AsAccepted();
+            var result = _sut.Edit(resourceCode, form).Result.AsAcceptedAtActionResult();
 
             //ObjectResult updatedResult = await _defaultSut.GetByCode(resourceCode) as ObjectResult;
             //Resource actual = updatedResult.Value as Resource;
@@ -47,11 +47,11 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         {
             ResourceUpdateForm form = new ResourceUpdateForm(newCategory, newDescription);
 
-            ObjectResult result = await _defaultSut.Edit(ResourceData.RESOURCE_01_CODE, form) as ObjectResult;
+            ObjectResult result = await _sut.Edit(ResourceData.RESOURCE_01_CODE, form) as ObjectResult;
 
             Assert.NotNull(result);
+            Assert.IsType<BadRequestObjectResult>(result);
             Assert.NotNull(result.Value);
-            Assert.IsType<ValidationErrorView>(result.Value);
         }
 
         [Theory]
@@ -62,7 +62,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
         {
             ResourceUpdateForm form = new ResourceUpdateForm("any", "any");
 
-            var result = await _defaultSut.Edit(resourceCode, form);
+            var result = await _sut.Edit(resourceCode, form);
             Assert.NotNull(result);
             Assert.IsType<NotFoundResult>(result);
         }
@@ -73,7 +73,7 @@ namespace Sero.Doorman.Tests.Controllers.Resources
             ResourceUpdateForm form = new ResourceUpdateForm("any", "any");
             await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             {
-                await _defaultSut.Edit(null, form);
+                await _sut.Edit(null, form);
             });
         }
     }

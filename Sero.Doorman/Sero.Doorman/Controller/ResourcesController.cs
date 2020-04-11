@@ -10,7 +10,7 @@ using Sero.Core;
 namespace Sero.Doorman.Controller
 {
     [ApiController]
-    public class ResourcesController : HateoasController
+    public class ResourcesController : BaseHateoasController
     {
         public readonly IResourceStore ResourceStore;
 
@@ -22,7 +22,7 @@ namespace Sero.Doorman.Controller
 
         [HttpGet("api/doorman/admin/resources")]
         [DoormanEndpoint(Constants.ResourceCodes.Resources, PermissionLevel.Read, EndpointScope.Collection)]
-        public async Task<IActionResult> GetByFilter([FromQuery] ResourcesFilter filter)
+        public async Task<IActionResult> GetByFilter([FromQuery] ResourceFilter filter)
         {
             var validationResult = new ResourcesFilterValidator().Validate(filter);
             validationResult.AddToModelState(this.ModelState, null);
@@ -63,7 +63,7 @@ namespace Sero.Doorman.Controller
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentNullException(nameof(code));
 
-            if (!await ResourceStore.IsUnique(code))
+            if (!await ResourceStore.IsExisting(code))
                 return NotFound();
 
             var validationResult = new ResourceUpdateFormValidator().Validate(form);
@@ -76,8 +76,7 @@ namespace Sero.Doorman.Controller
             resource.Category = form.Category;
             resource.Description = form.Description;
 
-            string getterUrl = Url.Action(nameof(GetByCode), new { resource.Code });
-            return Accepted(getterUrl, resource);
+            return AcceptedAtAction(nameof(GetByCode), new { resource.Code }, resource);
         }
     }
 }

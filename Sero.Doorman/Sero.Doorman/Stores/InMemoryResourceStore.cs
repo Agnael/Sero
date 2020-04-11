@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sero.Doorman.Stores
+namespace Sero.Doorman
 {
     public class InMemoryResourceStore : IResourceStore
     {
@@ -18,27 +18,27 @@ namespace Sero.Doorman.Stores
             Resources = resourceList;
         }
 
-        public async Task<Page<Resource>> Get(ResourcesFilter filter)
+        public async Task<Page<Resource>> Get(ResourceFilter filter)
         {
             Func<Resource, string> orderByPredicate = null;
             
             // Construye el predicate de ordenamiento en función del nombre de campo, es horrendo para este caso puntual pero
             // haciendolo así se tiene la flexibilidad de poder usar otro tipo diferente al modelo Resource.
-            if (filter.SortBy == nameof(Resource.Code))
+            if (filter.SortBy == ResourceSorting.Code)
                 orderByPredicate = x => x.Code;
-            else if (filter.SortBy == nameof(Resource.Category))
+            else if (filter.SortBy == ResourceSorting.Category)
                 orderByPredicate = x => x.Category;
 
             IEnumerable<Resource> query = Resources;
 
-            if (filter.OrderBy == Order.DESC)
+            if (filter.OrderBy == Order.Desc)
                 query = query.OrderByDescending(orderByPredicate);
             else
                 query = query.OrderBy(orderByPredicate);
 
-            if (!string.IsNullOrEmpty(filter.TextSearch))
-                query = query.Where(x => x.Code.ToLower().Contains(filter.TextSearch.ToLower())
-                                        || x.Category.ToLower().Contains(filter.TextSearch.ToLower()));
+            if (!string.IsNullOrEmpty(filter.FreeText))
+                query = query.Where(x => x.Code.ToLower().Contains(filter.FreeText.ToLower())
+                                        || x.Category.ToLower().Contains(filter.FreeText.ToLower()));
 
             int count = query.Count();
 
@@ -56,9 +56,15 @@ namespace Sero.Doorman.Stores
             return result;
         }
 
-        public async Task<bool> IsUnique(string resourceCode)
+        public async Task<IEnumerable<string>> GetAllCodes()
         {
-            var result = !Resources.Any(x => x.Code == resourceCode);
+            var allCodes = Resources.Select(x => x.Code);
+            return allCodes;
+        }
+
+        public async Task<bool> IsExisting(string resourceCode)
+        {
+            var result = Resources.Any(x => x.Code == resourceCode);
             return result;
         }
 

@@ -14,15 +14,29 @@ namespace Sero.Core
 {
     public class HateoasFilter : IActionFilter
     {
-        public HateoasService HateoasService { get; private set; }
+        public readonly HateoasService HateoasService;
+        public readonly IAuthorizationService AuthorizationService;
+
         public Endpoint CurrentEndpoint { get; private set; }
         public ActionDescriptor CurrentActionDescriptor { get; private set; }
         public string CurrentBaseUrlPath { get; set; }
         public IDictionary<string, object> ProvidedActionArguments { get; private set; }
 
-        public HateoasFilter(HateoasService hateoasService)
+        public HateoasFilter(
+            HateoasService hateoasService,
+            IAuthorizationService authorizationService)
         {
             this.HateoasService = hateoasService;
+
+            if (authorizationService == null)
+            {
+                // TODO: Loggear que tuvo que usarse el dummy
+                this.AuthorizationService = new DummyAuthorizationService();
+            }
+            else
+            {
+                this.AuthorizationService = authorizationService;
+            }
         }
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
@@ -36,22 +50,37 @@ namespace Sero.Core
 
         void IActionFilter.OnActionExecuted(ActionExecutedContext context)
         {
-            if (context.Result is ObjectResult
-                && !(context.Result is BadRequestObjectResult))
-            {
-                var resultValue = (context.Result as ObjectResult).Value;
+            IActionResult actionResult = context.Result;
 
-                if (resultValue is CollectionView)
+            if (actionResult is ObjectResult
+                && !(actionResult is BadRequestObjectResult))
+            {
+                IResultView result = null;
+
+                if(actionResult is CreatedResult)
                 {
-                    CollectionView output = (CollectionView)resultValue;
+                    result = ((actionResult as CreatedResult).Value as ObjectResult).Value as IResultView;
+                }
+                else
+                {
+                    result = (actionResult as ObjectResult).Value as IResultView;
+                }
+
+                if (result is CollectionView)
+                {
+                    CollectionView output = (CollectionView)result;
                     (context.Result as ObjectResult).Value = GetHateoasView(output);
+                    return;
+                }
+                else if(result is ElementView)
+                {
+                    ElementView output = (ElementView)result;
+                    (context.Result as ObjectResult).Value = GetHateoasView(output.ResourceCode, output.ViewModel);
                     return;
                 }
                 else
                 {
-                    ElementView output = (ElementView)resultValue;
-                    (context.Result as ObjectResult).Value = GetHateoasView(output.ResourceCode, output.ViewModel);
-                    return;
+                    throw new Exception("Can't generate a HATEOAS context for this IActionResult");
                 }
             }
         }
@@ -89,7 +118,10 @@ namespace Sero.Core
 
             HateoasLabeledLink parentLink = this.GetParentLink(parentResourceCode, currentResourceCode);
 
-            var collectionView = new HateoasCollectionView(output.UsedFilter, output.TotalExisting, collectionLinks, collectionActions, embeddedList, parentLink);
+            int totalExisting = output.TotalExisting;
+            int totalPagesAvailable = (int)Math.Ceiling((double)totalExisting / output.UsedFilter.PageSize.Values.First());
+
+            var collectionView = new HateoasCollectionView(totalExisting, totalPagesAvailable, collectionLinks, collectionActions, embeddedList, parentLink);
             return collectionView;
         }
 
@@ -111,7 +143,7 @@ namespace Sero.Core
             if (element == null) throw new ArgumentNullException(nameof(element));
 
             var linkMap = new Dictionary<string, string>();
-            var relevantEndpoints = HateoasService.GetLinks(resourceCode, EndpointScope.Element);
+            var relevantEndpoints = HateoasService.GetLinks(resourceCode, EndpointScope.Element, AuthorizationService.IsAuthorized);
 
             foreach (Endpoint endpoint in relevantEndpoints)
             {
@@ -147,7 +179,7 @@ namespace Sero.Core
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
 
             var hateoasActionMap = new Dictionary<string, HateoasAction>();
-            var relevantEndpoints = HateoasService.GetActions(resourceCode, scope);
+            var relevantEndpoints = HateoasService.GetActions(resourceCode, scope, AuthorizationService.IsAuthorized);
 
             foreach (Endpoint endpoint in relevantEndpoints)
             {
@@ -172,8 +204,9 @@ namespace Sero.Core
 
             // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
             var usedFilter = output.UsedFilter;
-            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection);
-            int calculatedLastPage = (int)Math.Ceiling((double)output.TotalExisting / usedFilter.PageSize);
+            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection, AuthorizationService.IsAuthorized);
+            int currentPageSize = usedFilter.PageSize.Values.First();
+            int calculatedLastPage = (int)Math.Ceiling((double)output.TotalExisting / currentPageSize);
 
             // POR CADA UNO DE ESOS METODOS, CREA UN LINK. 
             // <NO> CREA LINK SELF
@@ -190,59 +223,79 @@ namespace Sero.Core
             // AGREGA SELF DE FORMA CUSTOM PORQUE PUEDE HABER PARAMETROS INNECESARIOS EN EL FILTRO ACTUAL QUE MANDÓ EL USER
             linkMap.Add("self", GetCollectionLink(usedFilter));
 
-            //if (CurrentEndpoint.Relation == EndpointRelation.Child)
+            // AGREGA LINKS DE PAGINACION
+            int currentPage = usedFilter.Page.Values.First();
 
-                // AGREGA LINKS DE PAGINACION
-                if (usedFilter.Page >= 1 && usedFilter.Page <= calculatedLastPage)
+            if (currentPage >= 1 && currentPage <= calculatedLastPage)
+            {
+                if (currentPage > 1)
                 {
-                    if (usedFilter.Page > 1)
-                    {
-                        CollectionFilter prevFilter = usedFilter.Copy();
-                        prevFilter.Page = usedFilter.Page > 1 ? usedFilter.Page - 1 : usedFilter.Page; ;
-                        string urlPrev = GetCollectionLink(prevFilter);
-                        linkMap.Add("prev", urlPrev);
+                    int prevPage =
+                        currentPage > 1 
+                        ? currentPage - 1 
+                        : currentPage;
 
-                        CollectionFilter firstFilter = usedFilter.Copy();
-                        firstFilter.Page = 1;
-                        string urlFirst = GetCollectionLink(firstFilter);
-                        linkMap.Add("first", urlFirst);
-                    }
+                    var prevFilter = usedFilter.CopyAsPage(prevPage);
+                    string urlPrev = GetCollectionLink(prevFilter);
+                    linkMap.Add("prev", urlPrev);
 
-                    if (usedFilter.Page < calculatedLastPage)
-                    {
-                        CollectionFilter nextFilter = usedFilter.Copy();
-                        nextFilter.Page = usedFilter.Page < calculatedLastPage ? usedFilter.Page + 1 : usedFilter.Page;
-                        string urlNext = GetCollectionLink(nextFilter);
-                        linkMap.Add("next", urlNext);
-
-                        CollectionFilter lastFilter = usedFilter.Copy();
-                        lastFilter.Page = calculatedLastPage;
-                        string urlLast = GetCollectionLink(lastFilter);
-                        linkMap.Add("last", urlLast);
-                    }
+                    var firstFilter = usedFilter.CopyAsPage(1);
+                    string urlFirst = GetCollectionLink(firstFilter);
+                    linkMap.Add("first", urlFirst);
                 }
+
+                if (currentPage < calculatedLastPage)
+                {
+                    int nextPage =
+                        currentPage < calculatedLastPage 
+                        ? currentPage + 1 
+                        : currentPage;
+                    var nextFilter = usedFilter.CopyAsPage(nextPage);
+                    string urlNext = GetCollectionLink(nextFilter);
+                    linkMap.Add("next", urlNext);
+
+                    var lastFilter = usedFilter.CopyAsPage(calculatedLastPage);
+                    string urlLast = GetCollectionLink(lastFilter);
+                    linkMap.Add("last", urlLast);
+                }
+            }
 
             return linkMap;
         }
 
-        protected string GetCollectionLink(CollectionFilter filter)
+        protected string GetCollectionLink(FilteringOverview filter)
         {
-            var urlBuilder = new UrlBuilder<CollectionFilter>(this.CurrentBaseUrlPath);
+            var urlBuilder = new UrlBuilder<ICollectionFilter>(this.CurrentBaseUrlPath);
 
-            if (!filter.IsDefaultTextSearch())
-                urlBuilder.AddParam(x => x.TextSearch, filter.TextSearch);
+            if (filter.Page.IsModified)
+            {
+                string paramKey = filter.Page.Name.ToLower();
+                string paramValue = filter.Page.UrlFriendlyValueTransformer(filter.Page.Values.First());
 
-            if (!filter.IsDefaultPage())
-                urlBuilder.AddParam(x => x.Page, filter.Page);
+                urlBuilder.AddParam(paramKey, paramValue);
+            }
 
-            if (!filter.IsDefaultPageSize())
-                urlBuilder.AddParam(x => x.PageSize, filter.PageSize);
+            if (filter.PageSize.IsModified)
+            {
+                string paramKey = filter.PageSize.Name.ToLower();
+                string paramValue = filter.PageSize.UrlFriendlyValueTransformer(filter.PageSize.Values.First());
 
-            if (!filter.IsDefaultSortBy())
-                urlBuilder.AddParam(x => x.SortBy, filter.SortBy);
+                urlBuilder.AddParam(paramKey, paramValue);
+            }
 
-            if (!filter.IsDefaultOrderBy())
-                urlBuilder.AddParam(x => x.OrderBy, filter.OrderBy);
+            foreach(var additionalCriteria in filter.AdditionalCriterias)
+            {
+                if (additionalCriteria.IsModified)
+                {
+                    string paramKey = additionalCriteria.Name.ToLower();
+
+                    foreach(var value in additionalCriteria.Values)
+                    {
+                        string paramValue = additionalCriteria.UrlFriendlyValueTransformer(value);
+                        urlBuilder.AddParam(paramKey, paramValue);
+                    }
+                }
+            }
 
             string url = urlBuilder.Build();
             return url;

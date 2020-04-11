@@ -36,20 +36,13 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         [MemberData(nameof(RoleFormTestList_Success))]
         public async Task Success(string code, string name, string description, params Permission[] permissions)
         {
-            // Arrange
             Role expected = new Role(code, name, description, permissions);
-
-            // Act
             var form = new RoleCreateForm(code, name, description, permissions);
-            ObjectResult creationResult = await _defaultSut.Create(form) as ObjectResult;
-            Role createdFeedback = creationResult.Value as Role;
 
-            ObjectResult createdResult = await _defaultSut.GetByCode(code) as ObjectResult;
-            Role actual = createdResult.Value as Role;
-
-            // Assert
-            Assert.Equal((int)HttpStatusCode.Created, creationResult.StatusCode);
-            Assert.Equal(expected, createdFeedback, _roleComparer);
+            var actionResult = await _sut.Create(form);
+            
+            Assert.IsType<CreatedAtActionResult>(actionResult);
+            Role actual = actionResult.AsElementView<Role, Role>();
             Assert.Equal(expected, actual, _roleComparer);
         }
 
@@ -75,12 +68,11 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         {
             var form = new RoleCreateForm(code, name, description, permissions);
             
-            ObjectResult result = await _defaultSut.Create(form) as ObjectResult;
+            ObjectResult result = await _sut.Create(form) as ObjectResult;
 
             Assert.NotNull(result);
+            Assert.IsType<BadRequestObjectResult>(result);
             Assert.NotNull(result.Value);
-            Assert.IsType< ValidationErrorView>(result.Value);
-            Assert.Equal(StatusCodes.Status400BadRequest, (result as ObjectResult).StatusCode);
         }
     }
 }

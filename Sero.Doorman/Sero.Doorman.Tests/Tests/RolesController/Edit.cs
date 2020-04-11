@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Sero.Core;
 
 namespace Sero.Doorman.Tests.Controllers.Roles
 {
     public class Edit : RolesControllerFixture
     {
-        public static IEnumerable<object[]> RoleUpdateFormList_Success()
+        public static IEnumerable<object[]> Success_Data()
         {
             Permission[] validPermissions = new Permission[] { PermissionData.Resource_09_Read };
             yield return new object[] { RoleData.Role_01_Admin.Code, ValUtil.GetDisplayName(), ValUtil.GetDescription(), validPermissions };
@@ -22,27 +23,27 @@ namespace Sero.Doorman.Tests.Controllers.Roles
         }
 
         [Theory]
-        [MemberData(nameof(RoleUpdateFormList_Success))]
+        [MemberData(nameof(Success_Data))]
         public async Task Success(string roleCode, string displayName, string description, params Permission[] permissions)
         {
             List<Permission> permissionList = new List<Permission>();
             if (permissions != null && permissions.Count() > 0)
                 permissionList = permissions.ToList();
 
-            Role expected = _roleStoreBuilder.RoleList.FirstOrDefault(x => x.Code == roleCode);
+            Role expected = _roleStore.Roles.FirstOrDefault(x => x.Code == roleCode);
             expected.DisplayName = displayName;
             expected.Description = description;
             expected.Permissions = permissionList;
 
             var form = new RoleUpdateForm(displayName, description, permissionList);
-            ObjectResult editResult = await _defaultSut.Edit(roleCode, form) as ObjectResult;
-            Role editRole = editResult.Value as Role;
 
-            ObjectResult actualResult = await _defaultSut.GetByCode(roleCode) as ObjectResult;
-            Role actual = actualResult.Value as Role;
+            var actionResult = await _sut.Edit(roleCode, form);
+
+            Assert.IsType<AcceptedAtActionResult>(actionResult);
+
+            Role actual = actionResult.AsElementView<Role, Role>();
 
             Assert.Equal(expected, actual, _roleComparer);
-            Assert.Equal(expected, editRole, _roleComparer);
         }
     }
 }

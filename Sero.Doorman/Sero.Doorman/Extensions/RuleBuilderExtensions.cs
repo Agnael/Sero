@@ -45,10 +45,10 @@ namespace Sero.Doorman.Extensions
                 .Matches(string.Format("^[{0}]+[{1}]*$", Chars.LETTERS, Chars.ALPHANUMERIC_UNDERSCORE));
         }
 
-        public static IRuleBuilderOptions<T, string> IsOrderingDescriptor<T>(this IRuleBuilder<T, string> rule)
-        {
-            return rule.Must(BeIn(Order.ASC, Order.DESC, Order.Default));
-        }
+        //public static IRuleBuilderOptions<T, string> IsOrderingDescriptor<T>(this IRuleBuilder<T, string> rule)
+        //{
+        //    return rule.Must(BeIn(Order.Asc, Order.Desc, Order.Default));
+        //}
 
         public static IRuleBuilderOptions<T, string> IsPropertyNameOf<T>(this IRuleBuilder<T, string> rule, Type parentType)
         {
