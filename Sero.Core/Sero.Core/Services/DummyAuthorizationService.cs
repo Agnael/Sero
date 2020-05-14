@@ -4,9 +4,14 @@ using System.Text;
 
 namespace Sero.Core
 {
-    public class DummyAuthorizationService : IAuthorizationService
+    public class DummyAuthorizationService : IHateoasAuthorizator
     {
-        public bool IsAuthorized(Endpoint endpoint)
+        public bool IsAuthorized(IApiResource fromResource, Endpoint targetEndpoint)
+        {
+            return true;
+        }
+
+        public bool IsAuthorized(Endpoint targetEndpoint)
         {
             return true;
         }

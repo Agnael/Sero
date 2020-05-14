@@ -11,12 +11,12 @@ namespace Sero.Core
         public abstract string ResourceCode { get; }
         public readonly FilteringOverview UsedFilter;
         public readonly int TotalExisting;
-        public readonly IEnumerable<object> ViewModels;
+        public readonly IEnumerable<IApiResource> ViewModels;
 
         public CollectionView(
             FilteringOverview usedFilter,
             int totalExisting,
-            IEnumerable<object> viewModels)
+            IEnumerable<IApiResource> viewModels)
         {
             this.UsedFilter = usedFilter;
             this.TotalExisting = totalExisting;
@@ -25,12 +25,12 @@ namespace Sero.Core
     }
 
     public class CollectionView<TElement> : CollectionView
-        where TElement : Element
+        where TElement : IApiResource
     {
         public override string ResourceCode { 
             get
             {
-                string resourceCode = Activator.CreateInstance<TElement>().GetAppResourceCode();
+                string resourceCode = Activator.CreateInstance<TElement>().ApiResourceCode;
                 return resourceCode;
             } 
         }
@@ -38,7 +38,7 @@ namespace Sero.Core
         public CollectionView(
             FilteringOverview usedFilter,
             int totalExisting,
-            IEnumerable<object> viewModels)
+            IEnumerable<IApiResource> viewModels)
             : base(usedFilter, totalExisting, viewModels)
         {
 

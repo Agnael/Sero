@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,8 +15,8 @@ namespace Sero.Core
 {
     public class HateoasFilter : IActionFilter
     {
+        public readonly IHateoasAuthorizator Authorizator;
         public readonly HateoasService HateoasService;
-        public readonly IAuthorizationService AuthorizationService;
 
         public Endpoint CurrentEndpoint { get; private set; }
         public ActionDescriptor CurrentActionDescriptor { get; private set; }
@@ -24,23 +25,35 @@ namespace Sero.Core
 
         public HateoasFilter(
             HateoasService hateoasService,
-            IAuthorizationService authorizationService)
+            IHateoasAuthorizator authorizator)
         {
             this.HateoasService = hateoasService;
 
-            if (authorizationService == null)
+            if (authorizator == null)
             {
                 // TODO: Loggear que tuvo que usarse el dummy
-                this.AuthorizationService = new DummyAuthorizationService();
+                this.Authorizator = new DummyAuthorizationService();
             }
             else
             {
-                this.AuthorizationService = authorizationService;
+                this.Authorizator = authorizator;
             }
         }
 
         void IActionFilter.OnActionExecuting(ActionExecutingContext context)
-        {        
+        {
+            //IFiltrableByOwner filter = 
+            //    context
+            //    .ActionArguments
+            //    .Select(x => x.Value)
+            //    .FirstOrDefault(x => x is IFiltrableByOwner) as IFiltrableByOwner;
+
+            //if(filter != null)
+            //{
+            //    filter.SetRequiredOwnerId("asdlasjdVALORSITOO");
+            //    context.ActionArguments.Add("ApiResourceOwnerId", "ownerid metido como arg extra en el diccionario");                               
+            //}
+
             this.ProvidedActionArguments = context.ActionArguments;
             this.CurrentBaseUrlPath = context.HttpContext.Request.Path;
 
@@ -55,27 +68,18 @@ namespace Sero.Core
             if (actionResult is ObjectResult
                 && !(actionResult is BadRequestObjectResult))
             {
-                IResultView result = null;
-
-                if(actionResult is CreatedResult)
-                {
-                    result = ((actionResult as CreatedResult).Value as ObjectResult).Value as IResultView;
-                }
-                else
-                {
-                    result = (actionResult as ObjectResult).Value as IResultView;
-                }
+                IResultView result = actionResult.GetClosestResultView();
 
                 if (result is CollectionView)
                 {
                     CollectionView output = (CollectionView)result;
-                    (context.Result as ObjectResult).Value = GetHateoasView(output);
+                    (context.Result as ObjectResult).Value = GetHateoasCollectionView(output);
                     return;
                 }
                 else if(result is ElementView)
                 {
                     ElementView output = (ElementView)result;
-                    (context.Result as ObjectResult).Value = GetHateoasView(output.ResourceCode, output.ViewModel);
+                    (context.Result as ObjectResult).Value = GetHateoasElementView(output.ViewModel);
                     return;
                 }
                 else
@@ -101,18 +105,18 @@ namespace Sero.Core
             return parentLink;
         }
 
-        private HateoasCollectionView GetHateoasView(CollectionView output)
+        private HateoasCollectionView GetHateoasCollectionView(CollectionView output)
         {
             string parentResourceCode = CurrentEndpoint.ResourceCode;
             string currentResourceCode = output.ResourceCode;
 
             var collectionLinks = GetCollectionLinks(currentResourceCode, output);
-            var collectionActions = GetHateoasActions(currentResourceCode, EndpointScope.Collection);
+            var collectionActions = GetCollectionActions(currentResourceCode);
             
             List<HateoasElementView> embeddedList = new List<HateoasElementView>();
             foreach (var element in output.ViewModels)
             {
-                HateoasElementView elementView = GetHateoasView(currentResourceCode, element);
+                HateoasElementView elementView = GetHateoasElementView(element);
                 embeddedList.Add(elementView);
             }
 
@@ -121,29 +125,67 @@ namespace Sero.Core
             int totalExisting = output.TotalExisting;
             int totalPagesAvailable = (int)Math.Ceiling((double)totalExisting / output.UsedFilter.PageSize.Values.First());
 
-            var collectionView = new HateoasCollectionView(totalExisting, totalPagesAvailable, collectionLinks, collectionActions, embeddedList, parentLink);
+            var allFiltersUsed = this.GetCollectionFilteringMap(output.UsedFilter);
+
+            var collectionView = new HateoasCollectionView(totalExisting, totalPagesAvailable, allFiltersUsed, collectionLinks, collectionActions, embeddedList, parentLink);
             return collectionView;
         }
 
-        public HateoasElementView GetHateoasView(string resourceCode, object viewModel)
+        public Dictionary<string, object> GetCollectionFilteringMap(FilteringOverview filter)
+        {
+            var allFiltersUsed = new Dictionary<string, object>();
+
+            object pageValue =
+                filter.Page.HasMultipleValues
+                ? (object)filter.Page.Values
+                : filter.Page.Values.First();
+
+            allFiltersUsed.Add(filter.Page.Name, pageValue);
+
+            object pageSizeValue =
+                filter.PageSize.HasMultipleValues
+                ? (object)filter.PageSize.Values
+                : filter.PageSize.Values.First();
+
+            allFiltersUsed.Add(filter.PageSize.Name, pageSizeValue);
+
+            foreach(var extraCriteria in filter.AdditionalCriterias)
+            {
+                object extraCriteriaValue =
+                    extraCriteria.HasMultipleValues
+                    ? (object)extraCriteria.Values
+                    : extraCriteria.Values.First();
+
+                if(extraCriteriaValue != null
+                    && extraCriteriaValue.GetType().IsEnum)
+                {
+                    extraCriteriaValue = extraCriteriaValue.ToString();
+                }
+
+                allFiltersUsed.Add(extraCriteria.Name, extraCriteriaValue);
+            }
+
+            return allFiltersUsed;
+        }
+
+        public HateoasElementView GetHateoasElementView(IApiResource resource)
         {
             string parentResourceCode = CurrentEndpoint.ResourceCode;
-            HateoasLabeledLink parentLink = this.GetParentLink(parentResourceCode, resourceCode);
+            HateoasLabeledLink parentLink = this.GetParentLink(parentResourceCode, resource.ApiResourceCode);
 
-            var elemLinks = GetElementLinks(resourceCode, viewModel);
-            var elemActions = GetHateoasActions(resourceCode, EndpointScope.Element, viewModel);
+            var elemLinks = GetElementLinks(resource);
+            var elemActions = GetElementActions(resource);
 
-            var view = new HateoasElementView(elemLinks, elemActions, viewModel, parentLink);
+            var view = new HateoasElementView(elemLinks, elemActions, resource, parentLink);
             return view;
         }
 
-        protected Dictionary<string, string> GetElementLinks(string resourceCode, object element)
+        protected Dictionary<string, string> GetElementLinks(IApiResource resource)
         {
-            if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
-            if (element == null) throw new ArgumentNullException(nameof(element));
-
+            if (resource == null) throw new ArgumentNullException(nameof(resource));
+            
             var linkMap = new Dictionary<string, string>();
-            var relevantEndpoints = HateoasService.GetLinks(resourceCode, EndpointScope.Element, AuthorizationService.IsAuthorized);
+            var relevantEndpoints = HateoasService.GetElementLinks(resource, Authorizator);
 
             foreach (Endpoint endpoint in relevantEndpoints)
             {
@@ -153,33 +195,39 @@ namespace Sero.Core
                     actionName = "self";
 
                 string href = "/" + endpoint.UrlTemplate;
-
-                if (element is IEnumerable
-                    && (element as IEnumerable<object>).Count() > 0)
-                {
-                    href = ReflectionUtils.ReplaceUrlTemplate(href, (element as IEnumerable<object>).First());
-                }
-                else
-                {
-                    href = ReflectionUtils.ReplaceUrlTemplate(href, element);
-                }
-
+                
+                href = ReflectionUtils.ReplaceUrlTemplate(href, resource);
+                                             
                 linkMap.Add(actionName, href);
             }
             return linkMap;
         }
 
-        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, EndpointScope scope)
-        {
-            return this.GetHateoasActions(resourceCode, scope, null);
-        }
-
-        protected Dictionary<string, HateoasAction> GetHateoasActions(string resourceCode, EndpointScope scope, object valuesSource)
+        protected Dictionary<string, HateoasAction> GetCollectionActions(string resourceCode)
         {
             if (string.IsNullOrEmpty(resourceCode)) throw new ArgumentNullException(nameof(resourceCode));
 
             var hateoasActionMap = new Dictionary<string, HateoasAction>();
-            var relevantEndpoints = HateoasService.GetActions(resourceCode, scope, AuthorizationService.IsAuthorized);
+            var relevantEndpoints = HateoasService.GetCollectionActions(resourceCode, Authorizator);
+
+            foreach (Endpoint endpoint in relevantEndpoints)
+            {
+                HateoasAction newAction = new HateoasAction();
+                newAction.Method = endpoint.HttpMethod;
+                newAction.Href = "/" + endpoint.UrlTemplate;
+                
+                hateoasActionMap.Add(endpoint.EndpointName, newAction);
+            }
+
+            return hateoasActionMap;
+        }
+
+        protected Dictionary<string, HateoasAction> GetElementActions(IApiResource resource)
+        {
+            if (resource == null) throw new ArgumentNullException(nameof(resource));
+
+            var hateoasActionMap = new Dictionary<string, HateoasAction>();
+            var relevantEndpoints = HateoasService.GetElementActions(resource, Authorizator);
 
             foreach (Endpoint endpoint in relevantEndpoints)
             {
@@ -187,8 +235,7 @@ namespace Sero.Core
                 newAction.Method = endpoint.HttpMethod;
                 newAction.Href = "/" + endpoint.UrlTemplate;
 
-                if (valuesSource != null)
-                    newAction.Href = ReflectionUtils.ReplaceUrlTemplate(newAction.Href, valuesSource);
+                newAction.Href = ReflectionUtils.ReplaceUrlTemplate(newAction.Href, resource);
 
                 hateoasActionMap.Add(endpoint.EndpointName, newAction);
             }
@@ -204,7 +251,7 @@ namespace Sero.Core
 
             // FILTRA METODOS GET DEL RESOURCECODE ACTUAL
             var usedFilter = output.UsedFilter;
-            var relevantLinks = this.HateoasService.GetLinks(resourceCode, EndpointScope.Collection, AuthorizationService.IsAuthorized);
+            var relevantLinks = this.HateoasService.GetCollectionLinks(resourceCode, Authorizator);
             int currentPageSize = usedFilter.PageSize.Values.First();
             int calculatedLastPage = (int)Math.Ceiling((double)output.TotalExisting / currentPageSize);
 
@@ -270,7 +317,7 @@ namespace Sero.Core
             if (filter.Page.IsModified)
             {
                 string paramKey = filter.Page.Name.ToLower();
-                string paramValue = filter.Page.UrlFriendlyValueTransformer(filter.Page.Values.First());
+                string paramValue = filter.Page.UrlFriendlyValueTransformerDefault(filter.Page.Values.First());
 
                 urlBuilder.AddParam(paramKey, paramValue);
             }
@@ -278,7 +325,7 @@ namespace Sero.Core
             if (filter.PageSize.IsModified)
             {
                 string paramKey = filter.PageSize.Name.ToLower();
-                string paramValue = filter.PageSize.UrlFriendlyValueTransformer(filter.PageSize.Values.First());
+                string paramValue = filter.PageSize.UrlFriendlyValueTransformerDefault(filter.PageSize.Values.First());
 
                 urlBuilder.AddParam(paramKey, paramValue);
             }

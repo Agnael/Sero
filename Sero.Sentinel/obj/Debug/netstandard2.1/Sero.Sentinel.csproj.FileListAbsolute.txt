@@ -1,0 +1,13 @@
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Sentinel.deps.json
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Sentinel.dll
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Sentinel.pdb
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Core.dll
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Sentinel.Storage.dll
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Sentinel.Storage.pdb
+E:\Proyectos\Sero\Sero.Sentinel\bin\Debug\netstandard2.1\Sero.Core.pdb
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.csprojAssemblyReference.cache
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.AssemblyInfoInputs.cache
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.AssemblyInfo.cs
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.csproj.CopyComplete
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.dll
+E:\Proyectos\Sero\Sero.Sentinel\obj\Debug\netstandard2.1\Sero.Sentinel.pdb

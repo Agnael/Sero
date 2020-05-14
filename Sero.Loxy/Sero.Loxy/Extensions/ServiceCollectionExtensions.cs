@@ -18,6 +18,8 @@ namespace Sero.Loxy
 
             var builder = new LoxyBuilder(services);
 
+            services.TryAddScoped<LoxyMiddleware>();
+
             services.TryAddScoped<ILoxy>(serviceProvider => 
             {
                 var httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();

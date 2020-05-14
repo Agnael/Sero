@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using OrbintSoft.Yauaa.Analyzer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,21 +12,30 @@ namespace Sero.Core.Services
     public class RequestInfoService : IRequestInfoService
     {
         private readonly HttpContext _httpContext;
+        private readonly IUserAgentParsingService _userAgentParsingService;
 
         private string _requestedUrl;
         private string _requestQueryString;
         private string _requestBody;
         private string _requestedVerb;
         private string _acceptLanguageHeader;
+        private string _userAgentHeader;
+        private UserAgentOverview _userAgent;
         private string _requestId;
         private DateTime _requestStartDateUtc;
         private long _requestStartUnixTimestamp;
         private int _idProcess;
         private string _ipRemote;
 
-        public RequestInfoService(IHttpContextAccessor httpContextAccessor)
+        public RequestInfoService(
+            IHttpContextAccessor httpContextAccessor,
+            IUserAgentParsingService userAgentParsingService)
         {
-            _httpContext = httpContextAccessor.HttpContext;
+            _httpContext = 
+                httpContextAccessor?.HttpContext ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+            _userAgentParsingService = 
+                userAgentParsingService ?? throw new ArgumentNullException(nameof(userAgentParsingService));
 
             if(_httpContext != null)
             {
@@ -37,6 +47,8 @@ namespace Sero.Core.Services
 
                 _requestedVerb = _httpContext.Request.Method;
                 _acceptLanguageHeader = _httpContext.Request.Headers["Accept-Language"].ToString();
+                _userAgentHeader = _httpContext.Request.Headers["User-Agent"].ToString();
+                _userAgent = _userAgentParsingService.Parse(_userAgentHeader);
 
                 _requestId = _httpContext.TraceIdentifier;
                 _requestStartDateUtc = DateTime.UtcNow;
@@ -81,5 +93,7 @@ namespace Sero.Core.Services
         string IRequestInfoService.Url => _requestedUrl;
 
         string IRequestInfoService.Verb => _requestedVerb;
+
+        UserAgentOverview IRequestInfoService.UserAgent => _userAgent;
     }
 }

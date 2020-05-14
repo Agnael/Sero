@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sero.Core\Sero.Core\Sero.Core.csproj" />
+    <ProjectReference Include="..\Sero.Sentinel.Storage\Sero.Sentinel.Storage.csproj" />
+  </ItemGroup>
+
+</Project>

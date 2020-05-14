@@ -12,20 +12,21 @@ namespace Sero.Core
     {
         string Name { get; }
         bool IsModified { get; }
+        bool HasMultipleValues { get; }
 
         IEnumerable<object> DefaultValues { get; }
         IEnumerable<object> Values { get; }
 
-        //void SetDefaultValues(IEnumerable<object> defaultValues);
-        //void SetValues(IEnumerable<object> values);
-
-        Func<object, string> UrlFriendlyValueTransformer { get; }
+        string UrlFriendlyValueTransformer(object value);
     }
 
     public abstract class BaseFilterCriteria<T> : IFilterCriteria
     {
         protected abstract string DefaultPropertyName { get; }
-        public abstract Func<T, string> UrlFriendlyValueTransformer { get; }
+        public abstract bool HasMultipleValues { get; }
+
+        public abstract string UrlFriendlyValueTransformerDefault(T value);
+        private Func<T,string> _urlFriendlyValueTransformerOverride;
 
         public string Name => _customPropertyName ?? DefaultPropertyName;
 
@@ -34,8 +35,7 @@ namespace Sero.Core
 
         public IEnumerable<T> DefaultValues { get; private set; }
         public IEnumerable<T> Values { get; private set; }
-
-        Func<object, string> IFilterCriteria.UrlFriendlyValueTransformer => obj => this.UrlFriendlyValueTransformer((T)obj);
+               
         private string _customPropertyName;
 
         protected BaseFilterCriteria()
@@ -53,9 +53,22 @@ namespace Sero.Core
             }
         }
 
+        string IFilterCriteria.UrlFriendlyValueTransformer(object value)
+        {
+            if (_urlFriendlyValueTransformerOverride != null)
+                return _urlFriendlyValueTransformerOverride((T)value);
+
+            return this.UrlFriendlyValueTransformerDefault((T)value);
+        }
+
         public void SetPropertyName(string propertyName)
         {
             _customPropertyName = propertyName;
+        }
+
+        public void SetUrlFriendlyTransformer(Func<T, string> valueTransformer)
+        {
+            _urlFriendlyValueTransformerOverride = valueTransformer;
         }
 
         public void SetDefaultValues(IEnumerable<T> defaultValues)

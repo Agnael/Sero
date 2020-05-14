@@ -18,6 +18,7 @@ namespace Sero.Core
         public static void AddRequestInfo(this IServiceCollection services)
         {
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.TryAddSingleton<IUserAgentParsingService, YauaaUserAgentParsingService>();
             services.TryAddScoped<IRequestInfoService, RequestInfoService>();
         }
     }

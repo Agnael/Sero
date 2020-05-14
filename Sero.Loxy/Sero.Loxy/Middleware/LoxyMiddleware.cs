@@ -18,8 +18,7 @@ namespace Sero.Loxy
     {
         private ILoxy _loxy;
 
-        public LoxyMiddleware(RequestDelegate next) 
-            : base(next)
+        public LoxyMiddleware() 
         {
 
         }

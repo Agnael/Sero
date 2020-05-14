@@ -8,19 +8,19 @@ namespace Sero.Core
 {
     public static class ObjectExtensions
     {
-        public static string ToFilterString(this Order order)
+        public static string ToUrlFriendlyValue(this Order order)
         {
             var str = order.ToString().ToAntiCapitalized();
             return str;
         }
 
-        public static string ToFilterString(this int integer)
+        public static string ToUrlFriendlyValue(this int integer)
         {
             var str = integer.ToString();
             return str;
         }
 
-        public static string ToFilterString<TEnum>(this TEnum enumValue)
+        public static string ToUrlFriendlyValue<TEnum>(this TEnum enumValue)
             where TEnum: IComparable, IFormattable, IConvertible
         {
             if (!typeof(TEnum).IsEnum)
@@ -30,13 +30,13 @@ namespace Sero.Core
             return str;
         }
 
-        public static string ToFilterString(this DateTime dt)
+        public static string ToUrlFriendlyValue(this DateTime dt)
         {
             var str = dt.ToStandardDate();
             return str;
         }
 
-        public static string ToFilterString(this DateTime? dt)
+        public static string ToUrlFriendlyValue(this DateTime? dt)
         {
             var str = dt.ToStandardDate();
             return str;
@@ -53,6 +53,25 @@ namespace Sero.Core
                     property.SetValue(target, value, null);
                 }
             }
+        }
+
+        public static string GetPropertyName<T, TProp>(this T target, Expression<Func<T, TProp>> propSelector)
+        {
+            var member = propSelector.Body as MemberExpression;
+            if (member != null)
+                return member.Member.Name;
+
+            throw new ArgumentException("Expression is not a member access", "expression");
+        }
+
+        public static TProp GetPropertyValue<TObj, TProp>(this TObj target, Expression<Func<TObj, TProp>> propSelector)
+        {
+            MemberExpression memberExpr = (MemberExpression)propSelector.Body;
+            string memberName = memberExpr.Member.Name;
+            Func<TObj, TProp> compiledDelegate = propSelector.Compile();
+            TProp value = compiledDelegate(target);
+
+            return value;
         }
     }
 }

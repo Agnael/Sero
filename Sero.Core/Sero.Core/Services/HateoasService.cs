@@ -47,30 +47,51 @@ namespace Sero.Core
             return found;
         }
 
-        private IEnumerable<Endpoint> GetEndpoints(string resourceCode, EndpointScope scope, EndpointType type, Func<Endpoint, bool> isAuthorizedFunc)
+        private IEnumerable<Endpoint> GetEndpoints(string resourceCode, EndpointScope scope, EndpointType type, IHateoasAuthorizator authorizator)
         {
             var links =
                 Endpoints
                 .Where(x => x.Type == type
                     && x.Scope == scope
                     && x.ResourceCode == resourceCode
-                    && isAuthorizedFunc(x));
+                    && authorizator.IsAuthorized(x));
 
             return links;
         }
 
-        public IEnumerable<Endpoint> GetLinks(string resourceCode, EndpointScope scope, Func<Endpoint, bool> isAuthorizedFunc)
+        private IEnumerable<Endpoint> GetEndpoints(IApiResource resource, EndpointScope scope, EndpointType type, IHateoasAuthorizator authorizator)
         {
-            var links = this.GetEndpoints(resourceCode, scope, EndpointType.Link, isAuthorizedFunc);
+            var links =
+                Endpoints
+                .Where(x => x.Type == type
+                    && x.Scope == scope
+                    && x.ResourceCode == resource.ApiResourceCode
+                    && authorizator.IsAuthorized(resource, x));
+
             return links;
         }
 
-        public IEnumerable<Endpoint> GetActions(
-            string resourceCode,
-            EndpointScope scope,
-            Func<Endpoint, bool> isAuthorizedFunc)
+        public IEnumerable<Endpoint> GetCollectionLinks(string resourceCode, IHateoasAuthorizator authorizator)
         {
-            var actions = this.GetEndpoints(resourceCode, scope, EndpointType.Action, isAuthorizedFunc);
+            var links = this.GetEndpoints(resourceCode, EndpointScope.Collection, EndpointType.Link, authorizator);
+            return links;
+        }
+
+        public IEnumerable<Endpoint> GetElementLinks(IApiResource resource, IHateoasAuthorizator authorizator)
+        {
+            var links = this.GetEndpoints(resource, EndpointScope.Element, EndpointType.Link, authorizator);
+            return links;
+        }
+
+        public IEnumerable<Endpoint> GetElementActions(IApiResource resource, IHateoasAuthorizator authorizator)
+        {
+            var actions = this.GetEndpoints(resource, EndpointScope.Element, EndpointType.Action, authorizator);
+            return actions;
+        }
+
+        public IEnumerable<Endpoint> GetCollectionActions(string resourceCode, IHateoasAuthorizator authorizator)
+        {
+            var actions = this.GetEndpoints(resourceCode, EndpointScope.Collection, EndpointType.Action, authorizator);
             return actions;
         }
 

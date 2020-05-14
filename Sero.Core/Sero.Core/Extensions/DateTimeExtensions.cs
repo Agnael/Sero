@@ -17,7 +17,7 @@ namespace Sero.Core
             if (!dt.HasValue)
                 return null;
 
-            string dateStr = dt.ToStandardDate();
+            string dateStr = dt.Value.ToStandardDate();
             return dateStr;
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Routing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Sero.Core
@@ -42,7 +43,7 @@ namespace Sero.Core
         public readonly string UrlTemplate;
 
         public readonly string HttpMethod;
-
+        
         public Endpoint(ControllerActionDescriptor action)
         {
             var elementGetterAttr = action.GetElementGetterAttribute();

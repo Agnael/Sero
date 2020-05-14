@@ -6,24 +6,24 @@ using System.Threading.Tasks;
 
 namespace Sero.Core.Middleware
 {
-    public abstract class AbstractMiddleware
+    public abstract class AbstractMiddleware : IMiddleware
     {
         protected readonly RequestDelegate _next;
 
-        public AbstractMiddleware(RequestDelegate next)
+        public AbstractMiddleware()
         {
-            _next = next;
+
         }
-        
-        public virtual async Task InvokeAsync(HttpContext context)
+
+        public virtual async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
                 await OnBefore(context);
-                await _next(context);
+                await next(context);
                 await OnAfter(context);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (await OnErrorShouldRethrow(context, ex))
                     throw;

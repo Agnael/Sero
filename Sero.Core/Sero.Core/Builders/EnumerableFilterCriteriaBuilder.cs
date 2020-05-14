@@ -11,6 +11,7 @@ namespace Sero.Core
         private Expression<Func<TCollectionFilter, IEnumerable<TProperty>>> _filterPropertySelector;
         private string _customPropertyName;
         private BaseFilterCriteria<TProperty> _criteria;
+        private Func<TProperty, string> _customTransformer;
 
         private IEnumerable<TProperty> _defaultValues;
 
@@ -22,6 +23,13 @@ namespace Sero.Core
             _filterPropertySelector = propertySelector;
 
             _customPropertyName = ReflectionUtils.GetPropertyName(propertySelector);
+            _criteria = new DefaultCriteria<TProperty>(_customPropertyName, true);
+        }
+
+        public EnumerableFilterCriteriaBuilder<TCollectionFilter, TProperty> UseTransformer(Func<TProperty, string> valueToUrlFriendlyStringTransformer)
+        {
+            _customTransformer = valueToUrlFriendlyStringTransformer;
+            return this;
         }
 
         public EnumerableFilterCriteriaBuilder<TCollectionFilter, TProperty> UseDefaultValue(IEnumerable<TProperty> defaultValues)
@@ -44,7 +52,7 @@ namespace Sero.Core
             return this;
         }
 
-        public EnumerableFilterCriteriaBuilder<TCollectionFilter, TProperty> UsePropertyName(string propertyName)
+        public EnumerableFilterCriteriaBuilder<TCollectionFilter, TProperty> UseName(string propertyName)
         {
             _customPropertyName = propertyName;
             return this;
@@ -59,6 +67,9 @@ namespace Sero.Core
         {
             _criteria.SetDefaultValues(_defaultValues);
             _criteria.SetValues(values);
+
+            if(_customTransformer != null)
+                _criteria.SetUrlFriendlyTransformer(_customTransformer);
 
             if (!string.IsNullOrEmpty(_customPropertyName))
                 _criteria.SetPropertyName(_customPropertyName);

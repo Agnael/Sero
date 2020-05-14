@@ -8,6 +8,7 @@ namespace Sero.Core
     {
         None = 0,
         Read = 1,
-        Write = 2
+        Write = 2,
+        Complete = 3
     }
 }

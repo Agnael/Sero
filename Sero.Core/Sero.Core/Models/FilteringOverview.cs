@@ -6,14 +6,14 @@ namespace Sero.Core
 {
     public class FilteringOverview
     {
-        public readonly PageCriteria Page;
-        public readonly PageSizeCriteria PageSize;
+        public readonly BaseFilterCriteria<int> Page;
+        public readonly BaseFilterCriteria<int> PageSize;
 
         public readonly IEnumerable<IFilterCriteria> AdditionalCriterias;
 
         public FilteringOverview(
-            PageCriteria page,
-            PageSizeCriteria pageSize,
+            BaseFilterCriteria<int> page,
+            BaseFilterCriteria<int> pageSize,
             IEnumerable<IFilterCriteria> additionalCriterias)
         {
             this.Page = page;
@@ -23,7 +23,7 @@ namespace Sero.Core
 
         public FilteringOverview CopyAsPage(int newPage)
         {
-            PageCriteria newPageCriteria = new PageCriteria();
+            BaseFilterCriteria<int> newPageCriteria = new DefaultCriteria<int>(this.Page.Name, Page.HasMultipleValues);
             newPageCriteria.SetDefaultValues(Page.DefaultValues);
             newPageCriteria.SetValues(newPage);
 

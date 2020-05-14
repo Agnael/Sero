@@ -27,7 +27,7 @@ namespace Sero.Core
         }
 
         public static TViewModel AsElementView<TApiElement, TViewModel>(this IActionResult result)
-            where TApiElement : Element
+            where TApiElement : IApiResource
             where TViewModel : class, new()
         {
             ObjectResult objResult = (ObjectResult)result;
@@ -48,7 +48,7 @@ namespace Sero.Core
         }
 
         public static IEnumerable<TViewModel> AsCollectionView<TApiElement, TViewModel>(this IActionResult result)
-            where TApiElement : Element
+            where TApiElement : IApiResource
             where TViewModel : class, new()
         {
             ObjectResult objResult = (ObjectResult)result;
@@ -133,6 +133,27 @@ namespace Sero.Core
 
             IEnumerable<T> collection = collectionResult.ViewModels as IEnumerable<T>;
             return collection;
+        }
+
+        public static IResultView GetClosestResultView(this IActionResult result)
+        {
+            IResultView view = null;
+
+            if (result is ObjectResult)
+            {
+                var objResult = result as ObjectResult;
+
+                if (objResult.Value is IResultView)
+                {
+                    view = objResult.Value as IResultView;
+                }
+                else if(objResult.Value is IActionResult)
+                {
+                    view = GetClosestResultView(objResult.Value as IActionResult);
+                }                
+            }
+
+            return view;
         }
     }
 }
